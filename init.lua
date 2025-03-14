@@ -3,7 +3,7 @@
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
-========                                    .-----.          ========
+========                                    .-----.          ======
 ========         .----------------------.   | === |          ========
 ========         |.-""""""""""""""""""-.|   |-----|          ========
 ========         ||                    ||   | === |          ========
@@ -25,7 +25,7 @@ What is Kickstart?
   Kickstart.nvim is *not* a distribution.
 
   Kickstart.nvim is a starting point for your own configuration.
-    The goal is that you can read every line of code, top-to-bottom, understand
+  The goal is that you can read every line of code, top-to-bottom, understand
     what your configuration is doing, and modify it to suit your needs.
 
     Once you've done that, you can start exploring, configuring and tinkering to
@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -208,6 +208,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+local user_profile = vim.fn.getenv 'USERPROFILE'
+vim.g.python3_host_prog = user_profile .. '/.pyenv/pyenv-win/versions/3.12.7/python.exe'
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -234,6 +237,73 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  {
+    'numToStr/Comment.nvim', -- Add ability to comment out and uncomment lines
+    opts = {},
+  },
+  {
+    'kdheepak/lazygit.nvim', -- Add lazygit to nvim, lazygit bugs out in term
+    lazy = true,
+    requires = {
+      'nvim-lua/plenary.nvim',
+    },
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
+  {
+    'ggandor/leap.nvim',
+    config = function()
+      require('leap').create_default_mappings()
+      vim.keymap.set({ 'n', 'x' }, 's', '<Plug>(leap)')
+    end,
+  },
+  {
+    'easymotion/vim-easymotion',
+    enabled = false,
+    opts = {},
+  },
+  ---@type LazySpec
+  ---This plugin wasn't working properly, commenting out for now
+  -- {
+  --   "mikavilpas/yazi.nvim",
+  --   event = "VeryLazy",
+  --   dependencies = { "folke/snacks.nvim", lazy = true },
+  --   keys = {
+  --     -- 👇 in this section, choose your own keymappings!
+  --     {
+  --       "<leader>-",
+  --       mode = { "n", "v" },
+  --       "<cmd>Yazi<cr>",
+  --       desc = "Open yazi at the current file",
+  --     },
+  --     {
+  --       -- Open in the current working directory
+  --       "<leader>cw",
+  --       "<cmd>Yazi cwd<cr>",
+  --       desc = "Open the file manager in nvim's working directory",
+  --     },
+  --     {
+  --       "<c-up>",
+  --       "<cmd>Yazi toggle<cr>",
+  --       desc = "Resume the last yazi session",
+  --     },
+  --   },
+  --   ---@type YaziConfig | {}
+  --   opts = {
+  --     -- if you want to open yazi instead of netrw, see below for more info
+  --     open_for_directories = false,
+  --     keymaps = {
+  --       show_help = "<f1>",
+  --     },
+  --   },
+  --   -- 👇 if you use `open_for_directories=true`, this is recommended
+  --   init = function()
+  --     -- More details: https://github.com/mikavilpas/yazi.nvim/issues/802
+  --     -- vim.g.loaded_netrw = 1
+  --     vim.g.loaded_netrwPlugin = 1
+  --   end,
+  -- },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -473,8 +543,8 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'williamboman/mason.nvim', opts = {} },
-      'williamboman/mason-lspconfig.nvim',
+      { 'williamboman/mason.nvim', branch = 'v2.x', opts = {} },
+      { 'williamboman/mason-lspconfig.nvim', branch = '2.x' },
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
@@ -667,6 +737,7 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
+        basedpyright = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -930,7 +1001,21 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      require('mini.surround').setup {
+        mappings = {
+          add = 'msa', -- Add surrounding in Normal and Visual modes
+          delete = 'msd', -- Delete surrounding
+          find = 'msf', -- Find surrounding (to the right)
+          find_left = 'msF', -- Find surrounding (to the left)
+          highlight = 'msh', -- Highlight surrounding
+          replace = 'msr', -- Replace surrounding
+          update_n_lines = 'msn', -- Update `n_lines`
+
+          suffix_last = 'l', -- Suffix to search with "prev" method
+          suffix_next = 'n', -- Suffix to search with "next" method
+        },
+        silent = false,
+      }
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
