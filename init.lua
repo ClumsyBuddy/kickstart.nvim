@@ -251,7 +251,7 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
     },
     keys = {
-      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+      { '<leader>wg', '<cmd>LazyGit<cr>', desc = 'Open LazyGit' },
     },
   },
   {
@@ -409,6 +409,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>b', group = '[B]uffer' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
