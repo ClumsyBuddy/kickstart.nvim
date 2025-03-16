@@ -168,6 +168,9 @@ vim.opt.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Close buffer
+vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close current buffer' })
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
@@ -738,6 +741,24 @@ require('lazy').setup({
         -- pyright = {},
         -- rust_analyzer = {},
         basedpyright = {},
+        html = {
+          cmd = {
+            'vscode-html-language-server',
+            '--stdio',
+          },
+          filetypes = {
+            'html',
+            'templ',
+          },
+          init_options = {
+            configurationSection = { 'html', 'css', 'javascript' },
+            embeddedLanguages = {
+              css = true,
+              javascript = true,
+            },
+            provideFormatter = false,
+          },
+        },
 
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
