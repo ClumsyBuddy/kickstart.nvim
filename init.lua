@@ -239,14 +239,111 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    lazy = true,
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+      -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
+    },
+  },
+  { 'nvimtools/none-ls.nvim', lazy = true },
+  {
+    'lewis6991/hover.nvim',
+    lazy = true,
+    config = function()
+      require('hover').setup {
+        init = function()
+          -- Require providers
+          require 'hover.providers.lsp'
+          -- require('hover.providers.gh')
+          -- require('hover.providers.gh_user')
+          -- require('hover.providers.jira')
+          -- require('hover.providers.dap')
+          -- require('hover.providers.fold_preview')
+          -- require('hover.providers.diagnostic')
+          -- require('hover.providers.man')
+          -- require('hover.providers.dictionary')
+        end,
+        preview_opts = {
+          border = 'single',
+        },
+        -- Whether the contents of a currently open hover window should be moved
+        -- to a :h preview-window when pressing the hover keymap.
+        preview_window = false,
+        title = true,
+        mouse_providers = {
+          'LSP',
+        },
+        mouse_delay = 1000,
+      }
+
+      -- Setup keymaps
+      vim.keymap.set('n', '<leader>ch', require('hover').hover, { desc = 'Hover Context' })
+      vim.keymap.set('n', '<leader>cH', require('hover').hover_select, { desc = 'Hover Context (select)' })
+      vim.keymap.set('n', '<C-p>', function()
+        require('hover').hover_switch 'previous'
+      end, { desc = 'hover.nvim (previous source)' })
+      vim.keymap.set('n', '<C-n>', function()
+        require('hover').hover_switch 'next'
+      end, { desc = 'hover.nvim (next source)' })
+
+      -- Mouse support
+      -- vim.keymap.set('n', '<MouseMove>', require('hover').hover_mouse, { desc = 'hover.nvim (mouse)' })
+      -- vim.o.mousemoveevent = true
+    end,
+  },
+  {
+    'jmbuhr/otter.nvim',
+    lazy = true,
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'neovim/nvim-lspconfig',
+    },
+    config = function()
+      require('otter').setup {
+        buffers = {
+          -- set_filetype = true, -- Automatically set filetype for embedded code
+        },
+      }
+      -- TODO need to figure out how to localize otter to only the script tag
+      -- Attach to new buffers when they open
+      vim.api.nvim_create_autocmd({ 'BufWritePost', 'InsertLeave', 'TextChanged', 'BufNewFile' }, {
+        pattern = '*.html',
+        callback = function()
+          require('otter').activate(
+            { 'javascript' },
+            true,
+            true,
+            [[
+              (script_element
+                (start_tag
+                  (attribute
+                    (attribute_name) @attr_name (#eq? @attr_name "type")
+                    (quoted_attribute_value (attribute_value) @attr_value (#match? @attr_value "javascript"))
+                  )
+                )?
+                (raw_text) @injection.content
+                (#set! injection.language "javascript")
+              )
+            ]]
+          )
+        end,
+      })
+    end,
+  },
+  { 'BenoitZugmeyer/eslint-plugin-html', enabled = false },
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   {
     'numToStr/Comment.nvim', -- Add ability to comment out and uncomment lines
+    lazy = true,
     opts = {},
   },
   {
     'kdheepak/lazygit.nvim', -- Add lazygit to nvim, lazygit bugs out in term
-    lazy = true,
     requires = {
       'nvim-lua/plenary.nvim',
     },
@@ -266,47 +363,6 @@ require('lazy').setup({
     enabled = false,
     opts = {},
   },
-  ---@type LazySpec
-  ---This plugin wasn't working properly, commenting out for now
-  -- {
-  --   "mikavilpas/yazi.nvim",
-  --   event = "VeryLazy",
-  --   dependencies = { "folke/snacks.nvim", lazy = true },
-  --   keys = {
-  --     -- 👇 in this section, choose your own keymappings!
-  --     {
-  --       "<leader>-",
-  --       mode = { "n", "v" },
-  --       "<cmd>Yazi<cr>",
-  --       desc = "Open yazi at the current file",
-  --     },
-  --     {
-  --       -- Open in the current working directory
-  --       "<leader>cw",
-  --       "<cmd>Yazi cwd<cr>",
-  --       desc = "Open the file manager in nvim's working directory",
-  --     },
-  --     {
-  --       "<c-up>",
-  --       "<cmd>Yazi toggle<cr>",
-  --       desc = "Resume the last yazi session",
-  --     },
-  --   },
-  --   ---@type YaziConfig | {}
-  --   opts = {
-  --     -- if you want to open yazi instead of netrw, see below for more info
-  --     open_for_directories = false,
-  --     keymaps = {
-  --       show_help = "<f1>",
-  --     },
-  --   },
-  --   -- 👇 if you use `open_for_directories=true`, this is recommended
-  --   init = function()
-  --     -- More details: https://github.com/mikavilpas/yazi.nvim/issues/802
-  --     -- vim.g.loaded_netrw = 1
-  --     vim.g.loaded_netrwPlugin = 1
-  --   end,
-  -- },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -893,7 +949,7 @@ require('lazy').setup({
           -- },
         },
       },
-      'saadparwaiz1/cmp_luasnip',
+      { 'saadparwaiz1/cmp_luasnip' },
 
       -- Adds other completion capabilities.
       --  nvim-cmp does not ship with all sources by default. They are split
@@ -1066,7 +1122,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'javascript', 'css', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1077,6 +1133,7 @@ require('lazy').setup({
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
+      playground = { enabled = true },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
@@ -1106,7 +1163,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
