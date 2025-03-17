@@ -244,7 +244,6 @@ require('lazy').setup({
   } },
   {
     'nvim-neo-tree/neo-tree.nvim',
-    lazy = true,
     branch = 'v3.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
