@@ -251,6 +251,9 @@ require('lazy').setup({
       'MunifTanjim/nui.nvim',
       -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
     },
+    config = function()
+      vim.keymap.set('n', '<leader>wt', '<cmd>Neotree<cr>', { desc = 'Open Neotree' })
+    end,
   },
   { 'nvimtools/none-ls.nvim', lazy = true },
   {
