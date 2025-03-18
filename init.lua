@@ -278,7 +278,6 @@ require('lazy').setup({
   { 'nvimtools/none-ls.nvim', lazy = true },
   {
     'lewis6991/hover.nvim',
-    lazy = true,
     config = function()
       require('hover').setup {
         init = function()
