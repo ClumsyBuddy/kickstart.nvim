@@ -121,6 +121,9 @@ end)
 -- Enable break indent
 vim.opt.breakindent = true
 
+-- Disable Wrap
+vim.opt.wrap = false
+
 -- Save undo history
 vim.opt.undofile = true
 
@@ -170,6 +173,11 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Close buffer
 vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close current buffer' })
+
+-- Delete keymaps
+vim.keymap.set('n', '<leader>ddw', 'viwd', { desc = 'Delete current word' })
+-- Yank keymaps
+vim.keymap.set('n', '<leader>dyw', 'viwy', { desc = 'Yank current word' })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -239,22 +247,34 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+  {
+    'linux-cultist/venv-selector.nvim',
+    branch = 'regexp',
+    dependencies = { 'neovim/nvim-lspconfig', 'nvim-telescope/telescope.nvim', 'mfussenegger/nvim-dap-python' },
+    config = function()
+      require('venv-selector').setup {}
+      -- Keymap to open VenvSelector to pick a venv.
+      vim.keymap.set('n', '<leader>vs', '<cmd>VenvSelect<cr>', { desc = 'Select Venv' })
+      -- Keymap to retrieve the venv from a cache (the one previously used for the same project directory).
+      vim.keymap.set('n', '<leader>vc', '<cmd>VenvSelectCached<cr>', { desc = 'Select Cached Venv' })
+    end,
+  },
   { 'akinsho/toggleterm.nvim', version = '*', opts = {
     open_mapping = [[<C-\>]],
   } },
-  {
-    'nvim-neo-tree/neo-tree.nvim',
-    branch = 'v3.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
-      'MunifTanjim/nui.nvim',
-      -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
-    },
-    config = function()
-      vim.keymap.set('n', '<leader>wt', '<cmd>Neotree<cr>', { desc = 'Open Neotree' })
-    end,
-  },
+  -- {
+  --   'nvim-neo-tree/neo-tree.nvim',
+  --   branch = 'v3.x',
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --     'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+  --     'MunifTanjim/nui.nvim',
+  --     -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
+  --   },
+  --   config = function()
+  --     vim.keymap.set('n', '<C-l>', '<cmd>Neotree toggle<cr>', { desc = 'Open Neotree' })
+  --   end,
+  -- },
   { 'nvimtools/none-ls.nvim', lazy = true },
   {
     'lewis6991/hover.nvim',
@@ -349,6 +369,7 @@ require('lazy').setup({
   },
   {
     'kdheepak/lazygit.nvim', -- Add lazygit to nvim, lazygit bugs out in term
+    lazy = true,
     requires = {
       'nvim-lua/plenary.nvim',
     },
@@ -362,11 +383,6 @@ require('lazy').setup({
       require('leap').create_default_mappings()
       vim.keymap.set({ 'n', 'x' }, 's', '<Plug>(leap)')
     end,
-  },
-  {
-    'easymotion/vim-easymotion',
-    enabled = false,
-    opts = {},
   },
 
   -- NOTE: Plugins can also be added by using a table,
@@ -472,6 +488,9 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>b', group = '[B]uffer' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>v', group = '[V]env' },
+        { '<leader>dd', group = '[D]elete' },
+        { '<leader>dy', group = '[Y]ank' },
       },
     },
   },
@@ -802,7 +821,14 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
-        basedpyright = {},
+        basedpyright = {
+          settings = {
+            typeCheckingMode = 'standard',
+            python = {
+              pythonPath = vim.fn.exepath 'python3',
+            },
+          },
+        },
         html = {
           cmd = {
             'vscode-html-language-server',
@@ -1158,11 +1184,11 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
