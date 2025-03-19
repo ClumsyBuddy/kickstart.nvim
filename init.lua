@@ -248,6 +248,12 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   {
+    'norcalli/nvim-colorizer.lua',
+    config = function()
+      require('colorizer').setup()
+    end,
+  },
+  {
     'linux-cultist/venv-selector.nvim',
     branch = 'regexp',
     dependencies = { 'neovim/nvim-lspconfig', 'nvim-telescope/telescope.nvim', 'mfussenegger/nvim-dap-python' },
