@@ -87,6 +87,8 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
+--if vim.g.vscode then
+--else
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -98,7 +100,6 @@ vim.opt.termguicolors = true
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
-
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -223,7 +224,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 local user_profile = vim.fn.getenv 'USERPROFILE'
-vim.g.python3_host_prog = user_profile .. '/.pyenv/pyenv-win/versions/3.12.7/python.exe'
+-- vim.g.python3_host_prog = user_profile .. '/.pyenv/pyenv-win/versions/3.12.7/python.exe'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -377,6 +378,6 @@ require('lazy').setup({
     },
   },
 })
-
+--end
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

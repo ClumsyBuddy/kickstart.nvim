@@ -4,10 +4,10 @@ return {
     ---@type snacks.Config
     opts = {
       lazygit = {
-        enabled = true,
+        enabled = false,
       },
       scratch = {
-        enabled = true,
+        enabled = false,
       },
     },
     keys = {
