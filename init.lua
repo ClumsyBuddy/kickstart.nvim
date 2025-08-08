@@ -167,6 +167,18 @@ vim.opt.scrolloff = 10
 -- See `:help 'confirm'`
 vim.opt.confirm = true
 
+-- Set shell to PowerShell
+--  NOTE: 'pwsh' is for modern, cross-platform PowerShell.
+--        You might need to use 'powershell' for the older Windows PowerShell.
+if vim.fn.has 'win32' == 1 then
+  vim.opt.shell = 'pwsh.exe'
+  vim.opt.shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command'
+  vim.opt.shellquote = ''
+  vim.opt.shellxquote = ''
+  vim.opt.shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+  vim.opt.shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+end
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
