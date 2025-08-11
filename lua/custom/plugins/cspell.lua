@@ -4,13 +4,16 @@ return {
   dependencies = { 'davidmh/cspell.nvim' },
   config = function()
     local cspell = require 'cspell'
+    local null_ls = require 'null-ls'
 
+    -- cspell settings
     local config = {
       config_file_preferred_name = 'cspell.json',
       cspell_config_dirs = { '~/.config/' },
     }
 
-    require('null-ls').setup {
+    -- none-ls setup with cspell diagnostics + code actions
+    null_ls.setup {
       sources = {
         cspell.diagnostics.with {
           diagnostics_postprocess = function(diagnostic)
@@ -23,5 +26,46 @@ return {
         },
       },
     }
+
+    ---------------------------------------------------------------------------
+    -- Keymaps: run cspell code actions automatically on the word under cursor
+    ---------------------------------------------------------------------------
+
+    -- Helper to apply the first matching code action on the current line
+    local function cspell_action(match_fn)
+      local cursor_lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+      local ctx_diags = vim.diagnostic.get(0, { lnum = cursor_lnum })
+
+      vim.lsp.buf.code_action {
+        context = { diagnostics = ctx_diags },
+        apply = true, -- auto-apply the first action that matches filter
+        filter = function(action)
+          local title = (action.title or ''):lower()
+          return match_fn(title)
+        end,
+      }
+    end
+
+    -- Ignore the word (adds to ignore list)
+    vim.keymap.set('n', '<leader>ci', function()
+      cspell_action(function(title)
+        -- Titles vary; match common forms
+        return title:find 'cspell' and (title:find 'ignore' or title:find 'add .* to .*ignore')
+      end)
+    end, { desc = 'cspell: ignore word' })
+
+    -- Add the word to dictionary (cspell.json)
+    vim.keymap.set('n', '<leader>cw', function()
+      cspell_action(function(title)
+        return title:find 'cspell' and (title:find 'add .* to .*cspell' or title:find 'add .* to .*dictionary' or title:find 'add word')
+      end)
+    end, { desc = 'cspell: add word' })
+
+    -- Use suggested replacement
+    vim.keymap.set('n', '<leader>cs', function()
+      cspell_action(function(title)
+        return title:find 'cspell' and title:find 'use suggestion'
+      end)
+    end, { desc = 'cspell: use suggestion' })
   end,
 }

@@ -9,25 +9,32 @@ return {
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      require('mini.ai').setup {
+        n_lines = 500,
+        -- Move "next/last" off the bare a/i prefixes to avoid overlap waits
+        mappings = {
+          around = 'a',
+          inside = 'i',
+          around_next = 'gan',
+          around_last = 'gal',
+          inside_next = 'gin',
+          inside_last = 'gil',
+        },
+      }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
-      --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
+      -- If you ever want Mini.surround instead of nvim-surround, you can enable below and pick non-overlapping keys.
       -- require('mini.surround').setup {
       --   mappings = {
-      --     add = 'msa', -- Add surrounding in Normal and Visual modes
-      --     delete = 'msd', -- Delete surrounding
-      --     find = 'msf', -- Find surrounding (to the right)
-      --     find_left = 'msF', -- Find surrounding (to the left)
-      --     highlight = 'msh', -- Highlight surrounding
-      --     replace = 'msr', -- Replace surrounding
-      --     update_n_lines = 'msn', -- Update `n_lines`
-      --
-      --     suffix_last = 'l', -- Suffix to search with "prev" method
-      --     suffix_next = 'n', -- Suffix to search with "next" method
+      --     add = 'msa',
+      --     delete = 'msd',
+      --     find = 'msf',
+      --     find_left = 'msF',
+      --     highlight = 'msh',
+      --     replace = 'msr',
+      --     update_n_lines = 'msn',
+      --     suffix_last = 'l',
+      --     suffix_next = 'n',
       --   },
       --   silent = false,
       -- }

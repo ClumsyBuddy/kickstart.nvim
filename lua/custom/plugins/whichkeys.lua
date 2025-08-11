@@ -1,3 +1,4 @@
+-- cspell: disable
 return {
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
@@ -56,6 +57,26 @@ return {
         { '<leader>v', group = '[V]env' },
         { '<leader>dd', group = '[D]elete' },
         { '<leader>dy', group = '[Y]ank' },
+
+        -- Surround (nvim-surround)
+        { 'gs', group = '[S]urround' },
+
+        -- Comment.nvim single-line toggle moved to `gl`
+        { 'gl', desc = 'Toggle line comment', mode = 'n' },
+
+        -- LSP references moved from `gr` -> `gR` (if you applied that change)
+        { 'gR', desc = 'LSP References', mode = 'n' },
+
+        -- Mini.ai next/last moved off a/i prefixes (if you applied that change)
+        { 'gan', desc = 'Around Next', mode = { 'n', 'x', 'o' } },
+        { 'gal', desc = 'Around Last', mode = { 'n', 'x', 'o' } },
+        { 'gin', desc = 'Inside Next', mode = { 'n', 'x', 'o' } },
+        { 'gil', desc = 'Inside Last', mode = { 'n', 'x', 'o' } },
+
+        -- cspell actions
+        { '<leader>ci', desc = 'cspell: ignore word', mode = 'n' },
+        { '<leader>cw', desc = 'cspell: add word', mode = 'n' },
+        { '<leader>cs', desc = 'cspell: use suggestion', mode = 'n' },
       },
     },
   },
