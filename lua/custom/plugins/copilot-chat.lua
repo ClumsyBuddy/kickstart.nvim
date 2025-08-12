@@ -1,21 +1,22 @@
 return {
   'CopilotC-Nvim/CopilotChat.nvim',
-  cmd = 'CopilotChat',
+  dependencies = { { 'nvim-lua/plenary.nvim', branch = 'master' } },
+  cmd = { 'CopilotChat', 'CopilotChatToggle', 'CopilotChatModels' },
   keys = {
     {
       '<leader>aa',
       function()
-        return require('CopilotChat').toggle()
+        require('CopilotChat').toggle()
       end,
-      desc = 'Toggle',
+      desc = 'CopilotChat: Toggle',
       mode = { 'n', 'v' },
     },
     {
       '<leader>ax',
       function()
-        return require('CopilotChat').reset()
+        require('CopilotChat').reset()
       end,
-      desc = 'Clear',
+      desc = 'CopilotChat: Clear',
       mode = { 'n', 'v' },
     },
     {
@@ -26,15 +27,10 @@ return {
           require('CopilotChat').ask(input)
         end
       end,
-      desc = 'Quick Chat',
+      desc = 'CopilotChat: Quick Chat',
       mode = { 'n', 'v' },
     },
-    {
-      '<leader>ac',
-      ':CopilotChatCommit<cr>',
-      desc = 'Commit',
-      mode = { 'n', 'v' },
-    },
+    { '<leader>ac', ':CopilotChatCommit<cr>', desc = 'CopilotChat: Commit', mode = { 'n', 'v' } },
   },
   config = function()
     vim.api.nvim_create_autocmd('BufEnter', {
@@ -46,13 +42,15 @@ return {
     })
 
     require('CopilotChat').setup {
-      model = 'claude-3.5-sonnet',
+      -- Use Copilot provider; enable GitHub Models for Claude/Gemini/etc. (Copilot Pro)
+      provider = 'copilot',
+      providers = { github_models = { enabled = true } },
+
+      -- Check available names with :CopilotChatModels (e.g., 'claude-3.5-sonnet', 'gpt-4.1', etc.)
+      model = 'gpt-4.1',
+
       auto_insert_mode = true,
-      chat_autocomplete = false,
-      show_help = false,
-      show_folds = false,
-      question_header = '  ' .. vim.g.user:gsub('^%l', string.upper) .. ' ',
-      answer_header = '  Copilot ',
+
       window = {
         layout = 'float',
         relative = 'editor',
@@ -61,16 +59,21 @@ return {
         width = 80,
         height = vim.o.lines - 3,
         border = 'rounded',
+        headers = {
+          user = '  ' .. ((vim.g.user or 'you'):gsub('^%l', string.upper)) .. ' ',
+          assistant = '  Copilot ',
+          tool = ' Tool: ',
+        },
+        show_folds = false,
       },
+
+      -- Make submit explicit so you’re not relying on <Tab>
       mappings = {
-        close = {
-          insert = 'C-q', -- removes the default C-c mapping
+        submit_prompt = {
+          insert = '<C-s>', -- send while typing
+          normal = '<CR>', -- send from normal mode
         },
       },
-      selection = function(source)
-        local select = require 'CopilotChat.select'
-        return select.visual(source) or select.buffer(source)
-      end,
     }
   end,
 }
