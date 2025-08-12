@@ -5,6 +5,7 @@ return {
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
+    enabled = true,
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
@@ -19,11 +20,11 @@ return {
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
       -- vim.cmd.colorscheme 'tokyonight-night'
     end,
-    enabled = true,
   },
   {
     'Mofiqul/vscode.nvim',
-    priority = 10001,
+    enabled = true,
+    priority = 1001,
     opts = {
       transparent = true,
 
@@ -55,4 +56,29 @@ return {
     enabled = true,
   },
   { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 },
+  {
+    'scottmckendry/cyberdream.nvim',
+    dev = false,
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require('cyberdream').setup {
+        variant = 'auto',
+        transparent = true,
+        italic_comments = true,
+        hide_fillchars = true,
+        terminal_colors = false,
+        cache = true,
+        borderless_pickers = true,
+        overrides = function(c)
+          return {
+            CursorLine = { bg = c.bg },
+            CursorLineNr = { fg = c.magenta },
+          }
+        end,
+      }
+
+      vim.cmd 'colorscheme cyberdream'
+    end,
+  },
 }
