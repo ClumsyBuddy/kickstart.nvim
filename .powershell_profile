@@ -1,0 +1,69 @@
+#f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
+
+Import-Module -Name Microsoft.WinGet.CommandNotFound
+#f45873b3-b655-43a6-b217-97c00aa0db58
+
+
+
+function Activate-Venv {
+    if (Test-Path ".venv/Scripts/activate.ps1") {
+        & ".venv/Scripts/activate.ps1"
+        Write-Host "Virtual environment activated!" -ForegroundColor Green
+    } elseif (Test-Path ".venv/Scripts/Activate.ps1") {
+        & ".venv/Scripts/Activate.ps1"
+        Write-Host "Virtual environment activated!" -ForegroundColor Green
+    } else {
+        Write-Host "No virtual environment found in current directory" -ForegroundColor Red
+    }
+}
+
+
+
+function open-rel {
+<#
+.SYNOPSIS
+Opens a folder in File Explorer or Visual Studio Code, resolving relative paths from the current directory.
+
+.DESCRIPTION
+This function takes a relative path (with or without a trailing slash) and opens it in File Explorer by default.
+Optionally, it can open the folder in Visual Studio Code if the -VsCode switch is provided.
+
+.PARAMETER relativePath
+The relative path to the folder you want to open.
+
+.PARAMETER VsCode
+Switch to open the folder in Visual Studio Code instead of File Explorer.
+
+.EXAMPLE
+open-rel 'Late Fees on Deferred Payments'
+Opens the folder in File Explorer.
+
+.EXAMPLE
+open-rel 'Late Fees on Deferred Payments' -VsCode
+Opens the folder in Visual Studio Code.
+#>
+
+    param(
+        [string]$relativePath,
+        [switch]$code
+    )
+
+    # Remove trailing backslash or slash if present
+    $cleanPath = $relativePath.TrimEnd('\', '/')
+
+    # Resolve the full path
+    $fullPath = Resolve-Path $cleanPath -ErrorAction Stop
+
+    if ($code) {
+        # Open the folder in Visual Studio Code
+        code $fullPath
+    } else {
+        # Open the folder in File Explorer
+        explorer $fullPath
+    }
+}
+
+
+
+
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
