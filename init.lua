@@ -1,5 +1,5 @@
+--cspell:disable
 --[[
-
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
@@ -102,7 +102,8 @@ vim.opt.mouse = 'a'
 vim.opt.showmode = false
 
 vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
+  -- vim.opt.clipboard = 'unnamedplus'
+  vim.opt.clipboard = ''
 end)
 
 vim.opt.breakindent = true
@@ -115,6 +116,7 @@ vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 vim.opt.splitright = true
 vim.opt.splitbelow = true
+
 vim.opt.list = true
 vim.opt.listchars = {
   space = '·', -- every space
@@ -158,6 +160,27 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+
+-- [[ Set indentation for specific file types ]]
+vim.api.nvim_create_autocmd({ 'FileType' }, {
+  pattern = { 'python', 'yaml' },
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.expandtab = true
+  end,
+})
+
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = { '*.js', '*.ts' },
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.expandtab = true
+  end,
+})
+
+-- [[ Set the runtime path for Neovim ]]
 
 local user_profile = vim.fn.getenv 'USERPROFILE'
 

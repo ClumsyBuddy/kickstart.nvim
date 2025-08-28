@@ -8,42 +8,131 @@ local config = wezterm.config_builder()
 -- config.webgpu_preferred_adapter = gpus[1]
 -- config.front_end = "WebGpu"
 
+local opacity = 1
+local transparent_bg = "rgba(22, 24, 26, " .. opacity .. ")"
+
+--- Get the current operating system
+--- @return "windows"| "linux" | "macos"
+local function get_os()
+	local bin_format = package.cpath:match("%p[\\|/]?%p(%a+)")
+	if bin_format == "dll" then
+		return "windows"
+	elseif bin_format == "so" then
+		return "linux"
+	end
+
+	return "macos"
+end
+
+local host_os = get_os()
+
 -- Set PowerShell 7.5.2 as the default program
 -- Adjust the path to 'pwsh.exe' based on your installation location
 config.default_prog = { "C:\\Program Files\\PowerShell\\7\\pwsh.exe" }
 
-config.front_end = "OpenGL"
-config.max_fps = 60
-config.default_cursor_style = "BlinkingBlock"
-config.animation_fps = 15
-config.cursor_blink_rate = 250
-config.term = "xterm-256color" -- Set the terminal type
+-- Font Configuration
+local emoji_font = "Segoe UI Emoji"
+config.font = wezterm.font_with_fallback({
+	{
+		family = "0xProto Nerd Font",
+		weight = "Regular",
+	},
+	emoji_font,
+})
 
-config.cell_width = 0.9
-config.font = wezterm.font("0xProto Nerd Font")
-config.window_background_opacity = 0.9
-config.prefer_egl = true
-config.font_size = 16.0
+-- config.font = wezterm.font("0xProto Nerd Font")
+config.font_size = 15
 
-config.window_padding = {
-	left = 1,
-	right = 1,
-	top = 1,
-	bottom = 1,
+-- Color Configuration
+config.colors = {
+	foreground = "#ffffff",
+	background = "#16181a",
+
+	cursor_bg = "#ffffff",
+	cursor_fg = "#16181a",
+	cursor_border = "#ffffff",
+
+	selection_fg = "#ffffff",
+	selection_bg = "#3c4048",
+
+	scrollbar_thumb = "#16181a",
+	split = "#16181a",
+
+	ansi = { "#16181a", "#ff6e5e", "#5eff6c", "#f1ff5e", "#5ea1ff", "#bd5eff", "#5ef1ff", "#ffffff" },
+	brights = { "#3c4048", "#ff6e5e", "#5eff6c", "#f1ff5e", "#5ea1ff", "#bd5eff", "#5ef1ff", "#ffffff" },
+	indexed = { [16] = "#ffbd5e", [17] = "#ff6e5e" },
 }
 
--- tabs
+config.force_reverse_video_cursor = true
+
+-- Window Configuration
+config.initial_rows = 45
+config.initial_cols = 180
+config.window_decorations = "RESIZE"
+config.window_background_opacity = opacity
+config.window_background_image = os.getenv("LOCALAPPDATA") .. "\\nvim\\bg-blurred.png"
+config.window_close_confirmation = "NeverPrompt"
+config.win32_system_backdrop = "Acrylic"
+
+-- Performance Settings
+config.max_fps = 144
+config.animation_fps = 60
+config.cursor_blink_rate = 250
+
+-- Tab Bar Configuration
+config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = true
+config.show_tab_index_in_tab_bar = false
 config.use_fancy_tab_bar = false
--- config.tab_bar_at_bottom = true
+config.colors.tab_bar = {
+	background = config.window_background_image and "rgba(0, 0, 0, 0)" or transparent_bg,
+	new_tab = { fg_color = config.colors.background, bg_color = config.colors.brights[6] },
+	new_tab_hover = { fg_color = config.colors.background, bg_color = config.colors.foreground },
+}
 
--- config.inactive_pane_hsb = {
--- 	saturation = 0.0,
--- 	brightness = 1.0,
--- }
+function slice(tbl, first, last)
+	local result = {}
+	for i = first, last do
+		result[#result + 1] = tbl[i]
+	end
+	return result
+end
 
--- This is where you actually apply your config choices
---
+-- Tab Formatting
+
+function tab_title(tab)
+	local title = tab.tab_title
+	if title and #title > 0 then
+		return title
+	end
+	return tab.active_pane.title
+end
+
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+	local background = config.colors.brights[1]
+	local foreground = config.colors.foreground
+
+	if tab.is_active then
+		background = config.colors.brights[7]
+		foreground = config.colors.background
+	elseif hover then
+		background = config.colors.brights[8]
+		foreground = config.colors.background
+	end
+
+	local title = tab_title(tab)
+	title = tostring(tab.tab_index + 1) .. ": " .. title:sub(1, max_width - 4)
+
+	return {
+		{ Foreground = { Color = background } },
+		{ Text = "█" },
+		{ Background = { Color = background } },
+		{ Foreground = { Color = foreground } },
+		{ Text = title },
+		{ Foreground = { Color = background } },
+		{ Text = "█" },
+	}
+end)
 
 -- color scheme toggling
 wezterm.on("toggle-colorscheme", function(window, pane)
@@ -58,6 +147,7 @@ end)
 
 -- keymaps
 config.keys = {
+	-- { key = "v", mods = "CTRL", action = wezterm.action({ PasteFrom = "Clipboard" }) },
 	{
 		key = "W",
 		mods = "CTRL|SHIFT",
@@ -159,63 +249,22 @@ config.keys = {
 		mods = "CTRL|SHIFT",
 		action = act.CloseCurrentTab({ confirm = false }),
 	},
-}
-
--- For example, changing the color scheme:
-config.color_scheme = "Cloud (terminal.sexy)"
-config.colors = {
-	-- background = '#3b224c',
-	-- background = "#181616", -- vague.nvim bg
-	-- background = "#080808", -- almost black
-	background = "#0c0b0f", -- dark purple
-	-- background = "#020202", -- dark purple
-	-- background = "#17151c", -- brighter purple
-	-- background = "#16141a",
-	-- background = "#0e0e12", -- bright washed lavendar
-	-- background = 'rgba(59, 34, 76, 100%)',
-	cursor_border = "#bea3c7",
-	-- cursor_fg = "#281733",
-	cursor_bg = "#bea3c7",
-	-- selection_fg = '#281733',
-
-	tab_bar = {
-		background = "#0c0b0f",
-		-- background = "rgba(0, 0, 0, 0%)",
-		active_tab = {
-			bg_color = "#0c0b0f",
-			fg_color = "#bea3c7",
-			intensity = "Normal",
-			underline = "None",
-			italic = false,
-			strikethrough = false,
-		},
-		inactive_tab = {
-			bg_color = "#0c0b0f",
-			fg_color = "#f8f2f5",
-			intensity = "Normal",
-			underline = "None",
-			italic = false,
-			strikethrough = false,
-		},
-
-		new_tab = {
-			-- bg_color = "rgba(59, 34, 76, 50%)",
-			bg_color = "#0c0b0f",
-			fg_color = "white",
-		},
+	{
+		key = "E",
+		mods = "CTRL|SHIFT", -- Or your preferred modifier keys
+		action = wezterm.action.PromptInputLine({
+			description = "Enter new name for tab",
+			action = wezterm.action_callback(function(window, _, line)
+				if line then
+					window:active_tab():set_title(line)
+				end
+			end),
+		}),
 	},
 }
 
-config.window_frame = {
-	font = wezterm.font({ family = "Iosevka Custom", weight = "Regular" }),
-	active_titlebar_bg = "#0c0b0f",
-	-- active_titlebar_bg = "#181616",
-}
-
--- config.window_decorations = "INTEGRATED_BUTTONS | RESIZE"
-config.window_decorations = "NONE | RESIZE"
--- config.default_prog = { "powershell.exe", "-NoLogo" }
-config.initial_cols = 80
+-- For example, changing the color scheme:
+-- config.color_scheme = "Cloud (terminal.sexy)"
 
 wezterm.on("gui-startup", function(cmd)
 	local tab, pane, window = mux.spawn_window(cmd or {})
