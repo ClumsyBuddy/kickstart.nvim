@@ -77,7 +77,7 @@ return {
         ['<C-p>'] = 'actions.preview',
         ['<C-c>'] = { 'actions.close', mode = 'n' },
         ['<C-l>'] = 'actions.refresh',
-        ['-'] = { 'actions.parent', mode = 'n' },
+        ['<leader>-'] = { 'actions.parent', mode = 'n' },
         ['_'] = { 'actions.open_cwd', mode = 'n' },
         ['`'] = { 'actions.cd', mode = 'n' },
         ['~'] = { 'actions.cd', opts = { scope = 'tab' }, mode = 'n' },
@@ -211,6 +211,6 @@ return {
         border = 'rounded',
       },
     }
-    vim.keymap.set('n', '-', require('oil').open, { desc = 'Open parent directory' })
+    vim.keymap.set('n', '<leader>-', require('oil').open, { desc = 'Open parent directory' })
   end,
 }

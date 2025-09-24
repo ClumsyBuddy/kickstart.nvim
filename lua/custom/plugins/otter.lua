@@ -1,10 +1,12 @@
 return {
   {
     'jmbuhr/otter.nvim',
-    enable = true,
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    dependencies = {
+      'neovim/nvim-lspconfig',
+    },
     config = function()
-      require('otter').setup {
+      local otter = require 'otter'
+      otter.setup {
         lsp = {
           -- `:h events` that cause the diagnostics to update. Set to:
           -- { "BufWritePost", "InsertLeave", "TextChanged" } for less performant
@@ -40,33 +42,29 @@ return {
           ignore_pattern = {
             -- ipython cell magic (lines starting with %) and shell commands (lines starting with !)
             python = '^(%s*[%%!].*)',
+            -- ignore Angular template comments
+            html = '<!--.-?-->',
           },
         },
         -- list of characters that should be stripped from the beginning and end of the code chunks
         strip_wrapping_quote_characters = { "'", '"', '`' },
-        -- remove whitespace from the beginning of the code chunks when writing to the ottter buffers
+        -- remove whitespace from the beginning of the code chunks when writing to the otter buffers
         -- and calculate it back in when handling lsp requests
         handle_leading_whitespace = true,
         -- mapping of filetypes to extensions for those not already included in otter.tools.extensions
         -- e.g. ["bash"] = "sh"
         extensions = {},
-        -- add event listeners for LSP events for debugging
+        -- add event listeners for LSP events  for debugging
         debug = false,
         verbose = { -- set to false to disable all verbose messages
           no_code_found = false, -- warn if otter.activate is called, but no injected code was found
         },
       }
-
-      local AngularTemplateTSQuery = [[
-      (pair
-        key: (property_identifier) @key (#eq? @key "template")
-        value: (template_string) @injection.content)
-      (#set! injection.language "html")
-      ]]
-      vim.keymap.set('n', '<leader>ot', function()
-        require('otter').activate({ 'html' }, true, true, AngularTemplateTSQuery)
-      end, {
-        desc = 'Activate Otter',
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'markdown', 'python', 'typescript', 'javascript', 'html', 'angular' },
+        callback = function()
+          otter.activate()
+        end,
       })
     end,
   },

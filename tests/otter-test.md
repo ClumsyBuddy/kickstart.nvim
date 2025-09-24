@@ -2,15 +2,15 @@
 Hello world
 
 ```python
-import numpy as np
-np.zeros(10)
+from typing import Literal
+test_var = 'Something'
 ```
 
 ```typescript
-
 const hello = () => {
 
 }
 hello()
+let test = 0;
 
 ```

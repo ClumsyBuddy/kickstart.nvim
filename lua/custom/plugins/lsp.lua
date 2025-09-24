@@ -152,6 +152,31 @@ return {
             },
           },
         },
+        ts_ls = {
+          root_dir = function(fname)
+            local util = require 'lspconfig.util'
+            -- If angular.json or nx.json is present, do NOT attach ts_ls
+            if util.root_pattern('angular.json', 'nx.json')(fname) then
+              return nil
+            end
+            return util.root_pattern('package.json', 'tsconfig.json', '.git')(fname)
+          end,
+        },
+        angularls = {
+          cmd = {
+            'ngserver',
+            '--stdio',
+            '--tsProbeLocations',
+            vim.fn.stdpath 'data',
+            vim.fn.getcwd() .. '/node_modules',
+            '--ngProbeLocations',
+            vim.fn.stdpath 'data' .. '/@angular/language-server/node_modules',
+            vim.fn.getcwd() .. '/node_modules/@angular/language-server/node_modules',
+            '--angularCoreVersion',
+          },
+          filetypes = { 'typescript', 'html', 'typescriptreact', 'typescript.tsx', 'htmlangular' },
+          root_dir = require('lspconfig.util').root_pattern('angular.json', 'nx.json'),
+        },
       }
 
       -- Mason setup/installation
