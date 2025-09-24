@@ -53,7 +53,12 @@ return {
       sections = {
         lualine_a = { 'mode' },
         lualine_b = { 'branch', 'diff', 'diagnostics', get_git_info }, -- Or your existing branch component
-        lualine_c = { 'filename', 'filetype' },
+        lualine_c = {
+          function()
+            return vim.fn.expand '%:.'
+          end,
+          'filetype',
+        },
         lualine_x = { 'diagnostics' },
         -- lualine_y = { 'filetype' },
         lualine_z = {}, -- Add the new function to your statusline
