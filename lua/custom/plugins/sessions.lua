@@ -9,9 +9,9 @@ return {
         auto_save_ignore_buftypes = { 'terminal' },
         auto_save_ignore_dirs = { 'node_modules', '.git' },
       }
-      vim.keymap.set('n', '<leader>rss', require('resession').save)
-      vim.keymap.set('n', '<leader>rsl', require('resession').load)
-      vim.keymap.set('n', '<leader>rsd', require('resession').delete)
+      vim.keymap.set('n', '<leader>rss', require('resession').save, { desc = 'Save Session' })
+      vim.keymap.set('n', '<leader>rsl', require('resession').load, { desc = 'Load Session' })
+      vim.keymap.set('n', '<leader>rsd', require('resession').delete, { desc = 'Delete Session' })
     end,
   },
   {

@@ -5,7 +5,7 @@ return {
   config = function()
     require('copilot').setup {
       suggestion = {
-        enabled = true,
+        enabled = false,
         auto_trigger = true,
         debounce = 75,
         keymap = {
@@ -33,3 +33,5 @@ return {
 --     vim.g.copilot_no_tab_map = true
 --   end,
 -- }
+--
+--
