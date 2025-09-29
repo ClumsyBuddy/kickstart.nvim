@@ -2,6 +2,9 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    enabled = function()
+      return not vim.g.vscode
+    end,
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -14,7 +17,8 @@ return {
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
-      'hrsh7th/cmp-nvim-lsp',
+      -- 'hrsh7th/cmp-nvim-lsp',
+      'saghen/blink.cmp',
     },
     config = function()
       --  This function gets run when an LSP attaches to a particular buffer.
@@ -119,7 +123,8 @@ return {
 
       -- Capabilities
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities(capabilities))
 
       -- Servers
       local servers = {
@@ -136,12 +141,68 @@ return {
         },
         html = {
           cmd = { 'vscode-html-language-server', '--stdio' },
-          filetypes = { 'html', 'templ' },
+          filetypes = { 'html', 'templ', 'htmlangular' },
           init_options = {
             configurationSection = { 'html', 'css', 'javascript' },
             embeddedLanguages = { css = true, javascript = true },
             provideFormatter = false,
           },
+        },
+        cssls = {
+          cmd = { 'vscode-css-language-server', '--stdio' },
+          filetypes = { 'css', 'scss', 'less' },
+          settings = {
+            css = {
+              validate = true,
+              lint = {
+                unknownAtRules = 'ignore', -- For Tailwind CSS
+              },
+            },
+            scss = {
+              validate = true,
+              lint = {
+                unknownAtRules = 'ignore',
+              },
+            },
+          },
+        },
+        tailwindcss = {
+          cmd = { 'tailwindcss-language-server', '--stdio' },
+          filetypes = {
+            'html',
+            'css',
+            'scss',
+            'javascript',
+            'typescript',
+            'typescriptreact',
+            'javascriptreact',
+            'vue',
+            'svelte',
+            'htmlangular',
+          },
+          settings = {
+            tailwindCSS = {
+              classAttributes = { 'class', 'className', 'classList', 'ngClass' },
+              lint = {
+                cssConflict = 'warning',
+                invalidApply = 'error',
+                invalidConfigPath = 'error',
+                invalidScreen = 'error',
+                invalidTailwindDirective = 'error',
+                invalidVariant = 'error',
+                recommendedVariantOrder = 'warning',
+              },
+              validate = true,
+            },
+          },
+          root_dir = require('lspconfig.util').root_pattern(
+            'tailwind.config.js',
+            'tailwind.config.ts',
+            'postcss.config.js',
+            'postcss.config.ts',
+            'package.json',
+            '.git'
+          ),
         },
         -- ts_ls = {}, -- Example for TypeScript; consider pmizio/typescript-tools.nvim as an alternative
         lua_ls = {
@@ -183,6 +244,11 @@ return {
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'html-lsp', -- HTML Language Server
+        'css-lsp', -- CSS Language Server
+        'tailwindcss-language-server', -- Tailwind CSS Language Server
+        'typescript-language-server', -- TypeScript Language Server
+        'angular-language-server', -- Angular Language Server
       })
 
       require('mason-lspconfig').setup {

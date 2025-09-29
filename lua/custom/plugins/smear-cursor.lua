@@ -5,6 +5,9 @@ end
 
 return {
   'sphamba/smear-cursor.nvim',
+  enabled = function()
+    return not vim.g.vscode
+  end,
   event = 'VeryLazy',
   opts = {
     legacy_computing_symbols_support = true,

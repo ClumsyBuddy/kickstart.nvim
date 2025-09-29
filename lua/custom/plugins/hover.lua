@@ -1,6 +1,9 @@
 return {
   {
     'lewis6991/hover.nvim',
+    enabled = function()
+      return not vim.g.vscode
+    end,
     config = function()
       require('hover').setup {
         init = function()

@@ -17,6 +17,7 @@ return {
         'html',
         'javascript',
         'css',
+        'scss',
         'lua',
         'luadoc',
         'markdown',
@@ -25,6 +26,9 @@ return {
         'vim',
         'vimdoc',
         'typescript',
+        'tsx',
+        'json',
+        'yaml',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,

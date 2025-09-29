@@ -11,6 +11,7 @@ const hello = () => {
 
 }
 hello()
-let test = 0;
+let test: Number = 0;
+
 
 ```

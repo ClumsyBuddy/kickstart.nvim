@@ -1,10 +1,13 @@
 return {
   'CopilotC-Nvim/CopilotChat.nvim',
+  enabled = function()
+    return not vim.g.vscode
+  end,
   dependencies = { { 'nvim-lua/plenary.nvim', branch = 'master' } },
   cmd = { 'CopilotChat', 'CopilotChatToggle', 'CopilotChatModels' },
   keys = {
     {
-      '<leader>aa',
+      '<leader>cco',
       function()
         require('CopilotChat').toggle()
       end,
@@ -12,25 +15,14 @@ return {
       mode = { 'n', 'v' },
     },
     {
-      '<leader>ax',
+      '<leader>ccx',
       function()
         require('CopilotChat').reset()
       end,
       desc = 'CopilotChat: Clear',
       mode = { 'n', 'v' },
     },
-    {
-      '<leader>aq',
-      function()
-        local input = vim.fn.input 'Quick Chat: '
-        if input ~= '' then
-          require('CopilotChat').ask(input)
-        end
-      end,
-      desc = 'CopilotChat: Quick Chat',
-      mode = { 'n', 'v' },
-    },
-    { '<leader>ac', ':CopilotChatCommit<cr>', desc = 'CopilotChat: Commit', mode = { 'n', 'v' } },
+    { '<leader>ccc', ':CopilotChatCommit<cr>', desc = 'CopilotChat: Commit', mode = { 'n', 'v' } },
   },
   config = function()
     vim.api.nvim_create_autocmd('BufEnter', {

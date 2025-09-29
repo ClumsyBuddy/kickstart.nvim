@@ -89,7 +89,9 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = true
+vim.g.have_nerd_font = function()
+      return not vim.g.vscode
+end
 vim.opt.termguicolors = true
 
 -- [[ Setting options ]]

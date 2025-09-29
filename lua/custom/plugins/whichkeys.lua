@@ -40,6 +40,8 @@ return {
       },
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
+        { '<leader>ca', group = '[A]ngular', mode = { 'n', 'x' } },
+        { '<leader>cc', group = '[C]opilot', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },

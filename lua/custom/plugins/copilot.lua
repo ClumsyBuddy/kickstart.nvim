@@ -1,5 +1,8 @@
 return {
   'zbirenbaum/copilot.lua',
+  enabled = function()
+    return not vim.g.vscode
+  end,
   cmd = 'Copilot',
   event = 'InsertEnter',
   config = function()
@@ -7,7 +10,7 @@ return {
       suggestion = {
         enabled = false,
         auto_trigger = true,
-        debounce = 75,
+        debounce = 250,
         keymap = {
           accept = '<C-y>',
           accept_word = false,

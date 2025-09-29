@@ -1,6 +1,9 @@
 return {
   {
     'stevearc/resession.nvim',
+    enabled = function()
+      return not vim.g.vscode
+    end,
     config = function()
       require('resession').setup {
         auto_save = true,
