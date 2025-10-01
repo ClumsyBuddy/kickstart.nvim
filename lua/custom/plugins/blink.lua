@@ -29,6 +29,7 @@ return {
     --
     -- See :h blink-cmp-config-keymap for defining your own keymap
     keymap = { preset = 'default' },
+    signature = { enabled = true },
     enabled = function()
       return not vim.tbl_contains({ 'copilot-chat' }, vim.bo.filetype)
     end,
@@ -40,7 +41,22 @@ return {
     },
 
     -- (Default) Only show the documentation popup when manually triggered
-    completion = { documentation = { auto_show = true, auto_show_delay_ms = 1000 } },
+    completion = {
+      documentation = {
+        auto_show = false,
+        auto_show_delay_ms = 500,
+      },
+      list = {
+        selection = {
+          preselect = true,
+          auto_insert = true,
+        },
+      },
+      ghost_text = {
+        enabled = true,
+        show_with_menu = false,
+      },
+    },
 
     -- Default list of enabled providers defined so that you can extend it
     -- elsewhere in your config, without redefining it, due to `opts_extend`
@@ -54,12 +70,11 @@ return {
           -- score_offset = 100,
           async = true,
           opts = {
-            debounce = 250,
+            debounce = 75,
           },
         },
       },
     },
-    ghost_text = { enabled = true },
     snippet = {
       preset = 'luasnip',
     },
