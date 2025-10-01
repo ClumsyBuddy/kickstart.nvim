@@ -51,7 +51,7 @@ return {
 
           -- Rename / Code Action
           map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-          map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
+          map('<leader>cla', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
 
           -- Highlight references on CursorHold, clear on move (when supported)
           local function client_supports_method(client, method, bufnr)
