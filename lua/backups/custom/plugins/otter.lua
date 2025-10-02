@@ -4,10 +4,10 @@ return {
     dependencies = {
       'neovim/nvim-lspconfig',
     },
-    enabled = false,
-    -- enabled = function()
-    --   return not vim.g.vscode
-    -- end,
+    -- enabled = false,
+    enabled = function()
+      return not vim.g.vscode
+    end,
     config = function()
       local otter = require 'otter'
       otter.setup {

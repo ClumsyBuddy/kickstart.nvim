@@ -1,6 +1,7 @@
 return {
   'saghen/blink.cmp',
   -- optional: provides snippets for the snippet source
+  enabled = true,
   dependencies = {
     'rafamadriz/friendly-snippets',
     'giuxtaposition/blink-cmp-copilot',
