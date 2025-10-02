@@ -2,7 +2,7 @@ return {
   -- dashboard to greet
   {
     'goolord/alpha-nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'nvim-tree/nvim-web-devicons', 'nvim-mini/mini.icons' },
     config = function()
       local alpha = require 'alpha'
       local dashboard = require 'alpha.themes.dashboard'
