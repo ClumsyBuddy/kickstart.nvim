@@ -2,6 +2,7 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    -- enabled = false,
     enabled = function()
       return not vim.g.vscode
     end,
@@ -17,8 +18,8 @@ return {
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
-      -- 'hrsh7th/cmp-nvim-lsp',
-      'saghen/blink.cmp',
+      'hrsh7th/cmp-nvim-lsp',
+      -- 'saghen/blink.cmp',
     },
     config = function()
       --  This function gets run when an LSP attaches to a particular buffer.
@@ -51,7 +52,7 @@ return {
 
           -- Rename / Code Action
           map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-          map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
+          map('<leader>cla', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
 
           -- Highlight references on CursorHold, clear on move (when supported)
           local function client_supports_method(client, method, bufnr)
@@ -123,20 +124,14 @@ return {
 
       -- Capabilities
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities(capabilities))
+      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      -- capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities(capabilities))
 
       -- Servers
       local servers = {
         -- clangd = {},
         -- gopls = {},
         -- rust_analyzer = {},
-        omnisharp = {
-          cmd = { 'D:/OmniSharp/OmniSharp.exe', '--languageserver', '--hostPID', tostring(vim.fn.getpid()) },
-          -- You can add more settings here if needed
-          -- root_dir = require('lspconfig.util').root_pattern('*.sln', '*.csproj', '.git'),
-          -- capabilities = capabilities,
-        },
         basedpyright = {
           settings = {
             typeCheckingMode = 'standard',

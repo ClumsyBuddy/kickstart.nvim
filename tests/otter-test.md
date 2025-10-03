@@ -7,11 +7,10 @@ test_var = 'Something'
 ```
 
 ```typescript
-const hello = () => {
-
+const hello = (): string => {
+    return "Hello world";
 }
-hello()
 let test: Number = 0;
-
+let _var: boolean = hello();
 
 ```

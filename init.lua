@@ -90,7 +90,7 @@ vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = function()
-      return not vim.g.vscode
+  return not vim.g.vscode
 end
 vim.opt.termguicolors = true
 
@@ -146,13 +146,19 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close current buffer' })
 vim.keymap.set('n', '<leader>ddw', 'viwd', { desc = 'Delete current word' })
 vim.keymap.set('n', '<leader>dyw', 'viwy', { desc = 'Yank current word' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Remap for ijkl movement in normal mode
+-- vim.keymap.set('n', 'i', 'k', { noemap = true })
+-- vim.keymap.set('n', 'j', 'h', { noremap = true })
+-- vim.keymap.set('n', 'k', 'j', { noremap = true })
+-- vim.keymap.set('n', 'l', 'l', { noremap = true })
 
 -- [[ Basic Autocommands ]]
 vim.api.nvim_create_autocmd('TextYankPost', {
@@ -241,13 +247,16 @@ require('lazy').setup({
 
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
-  require 'kickstart.plugins.indent_line',
-  require 'kickstart.plugins.lint',
-  require 'kickstart.plugins.autopairs',
-  require 'kickstart.plugins.neo-tree',
-  require 'kickstart.plugins.gitsigns',
+  -- require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.lint',
+  -- require 'kickstart.plugins.autopairs',
+  -- require 'kickstart.plugins.neo-tree',
+  -- require 'kickstart.plugins.gitsigns',
+  require 'config.global',
+  require 'config.lazy',
+  require 'config.autocommands',
 
-  { import = 'custom.plugins' },
+  -- { import = 'custom.plugins' },
 }, {
   ui = {
     icons = vim.g.have_nerd_font and {} or {
