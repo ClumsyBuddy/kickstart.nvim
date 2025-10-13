@@ -26,7 +26,10 @@ return {
       {
         'nvim-neotest/nvim-nio',
         'rcarriga/nvim-dap-ui',
-        -- 'mfussenegger/nvim-dap-python',
+        {
+          'mfussenegger/nvim-dap-python',
+          build = 'pip install --user debugpy',
+        },
         'theHamsta/nvim-dap-virtual-text',
       },
     },
