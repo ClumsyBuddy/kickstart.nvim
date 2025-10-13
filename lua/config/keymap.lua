@@ -409,8 +409,8 @@ wk.register({
     h = { ':execute "h " . expand("<cword>")<cr>', 'vim [h]elp for current word' },
     o = {
       name = '[o]verseer',
-      t = { ':OverseerToggle<cr>', '[t]oggle overseer' },
-      r = { ':OverseerRun<cr>', '[r]un task' },
+      -- t = { ':OverseerToggle<cr>', '[t]oggle overseer' },
+      -- r = { ':OverseerRun<cr>', '[r]un task' },
     },
   },
   w = {

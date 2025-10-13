@@ -24,9 +24,9 @@ return {
         -- Default task strategy
         strategy = 'terminal',
         -- Template modules to load
-        templates = { 'builtin' },
+        templates = { 'batch' },
         -- Directories where overseer will look for template definitions (relative to rtp)
-        template_dirs = { 'overseer.template' },
+        template_dirs = { 'overseer.templates' },
         -- When true, tries to detect a green color from your colorscheme to use for success highlight
         auto_detect_success_color = true,
         -- Patch nvim-dap to support preLaunchTask and postDebugTask
@@ -221,7 +221,9 @@ return {
         },
       }
       vim.keymap.set('n', '<leader>vot', '<cmd>OverseerToggle<cr>', { desc = 'Toggle Overseer' })
-      vim.keymap.set('n', '<leader>vor', '<cmd>OverseerToggle<cr>', { desc = 'Overseer Run' })
+      vim.keymap.set('n', '<leader>vor', function()
+        require('overseer').run_template { autostart = false }
+      end, { desc = 'Overseer: Run Task (force picker)' })
     end,
   },
 }
