@@ -407,6 +407,11 @@ wk.register({
     r = { '[R]esession' },
     s = { ':e $MYVIMRC | :cd %:p:h | split . | wincmd k<cr>', '[s]ettings, edit vimrc' },
     h = { ':execute "h " . expand("<cword>")<cr>', 'vim [h]elp for current word' },
+    o = {
+      name = '[o]verseer',
+      t = { ':OverseerToggle<cr>', '[t]oggle overseer' },
+      r = { ':OverseerRun<cr>', '[r]un task' },
+    },
   },
   w = {
     name = '[W]orkspace',

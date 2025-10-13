@@ -26,7 +26,7 @@ return {
       {
         'nvim-neotest/nvim-nio',
         'rcarriga/nvim-dap-ui',
-        'mfussenegger/nvim-dap-python',
+        -- 'mfussenegger/nvim-dap-python',
         'theHamsta/nvim-dap-virtual-text',
       },
     },
