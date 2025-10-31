@@ -1,7 +1,7 @@
 return {
 
   -- disables hungry features for files larget than 2MB
-  { 'LunarVim/bigfile.nvim' },
+  { 'LunarVim/bigfile.nvim', event = 'BufReadPre' },
 
   -- add/delete/change can be done with the keymaps
   -- ys{motion}{char}, ds{char}, and cs{target}{replacement}
@@ -24,11 +24,13 @@ return {
 
   { -- format things as tables
     'godlygeek/tabular',
+    cmd = 'Tabularize',
   },
 
   { -- Autoformat
     'stevearc/conform.nvim',
     enabled = true,
+    event = { 'BufWritePre' },
     config = function()
       require('conform').setup {
         notify_on_error = false,
@@ -147,6 +149,7 @@ return {
 
   {
     'echasnovski/mini.nvim',
+    event = 'VeryLazy',
     config = function()
       -- Better Around/Inside textobjects
       --

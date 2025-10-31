@@ -179,6 +179,7 @@ return {
   { -- scrollbar
     'dstein64/nvim-scrollview',
     enabled = true,
+    event = 'VeryLazy',
     opts = {
       current_only = true,
     },
@@ -233,6 +234,7 @@ return {
   {
     'folke/which-key.nvim',
     enabled = true,
+    event = 'VeryLazy',
     config = function()
       require('which-key').setup {}
       require 'config.keymap'
@@ -293,6 +295,7 @@ return {
     'lukas-reineke/indent-blankline.nvim',
     enabled = true,
     main = 'ibl',
+    event = 'VeryLazy',
     config = function()
       local highlight = {
         'RainbowRed',
