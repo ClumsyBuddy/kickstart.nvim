@@ -106,11 +106,64 @@ return {
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
+      'ravitemer/mcphub.nvim',
+      {
+        'echasnovski/mini.diff',
+        config = function()
+          local diff = require 'mini.diff'
+          diff.setup {
+            -- Disabled by default
+            source = diff.gen_source.none(),
+          }
+        end,
+      },
+      {
+        'MeanderingProgrammer/render-markdown.nvim',
+        ft = { 'markdown', 'codecompanion' },
+      },
     },
     opts = {
       -- NOTE: The log_level is in `opts.opts`
       opts = {
         log_level = 'DEBUG', -- or "TRACE"
+      },
+    },
+    config = function()
+      require('codecompanion').setup {
+        extensions = {
+          mcphub = {
+            callback = 'mcphub.extensions.codecompanion',
+            opts = {
+              make_vars = true,
+              make_slash_commands = true,
+              show_result_in_chat = true,
+            },
+          },
+        },
+        strategies = {
+          chat = {
+            adapter = 'copilot',
+            model = 'claude-sonnet-4',
+          },
+          inline = {
+            adapter = 'copilot',
+            model = 'claude-sonnet-4',
+          },
+          cmd = {
+            adapter = 'copilot',
+            model = 'claude-sonnet-4',
+          },
+        },
+      }
+    end,
+    keys = {
+      {
+        '<leader>aa',
+        mode = { 'n' },
+        function()
+          vim.cmd 'CodeCompanionActions'
+        end,
+        desc = 'CodeCompanion: Actions',
       },
     },
   },

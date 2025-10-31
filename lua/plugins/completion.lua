@@ -117,7 +117,8 @@ return {
               calc = '[calc]',
               latex_symbols = '[tex]',
               emoji = '[emoji]',
-              copilot = '[Copiot]',
+              copilot = '[Copilot]',
+              codecompanion = '[CC]',
             },
           },
         },
@@ -135,6 +136,7 @@ return {
           { name = 'latex_symbols' },
           { name = 'emoji' },
           { name = 'copilot' },
+          { name = 'codecompanion' },
         },
         view = {
           entries = 'native',
