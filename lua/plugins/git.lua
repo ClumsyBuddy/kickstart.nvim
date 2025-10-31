@@ -1,7 +1,7 @@
 -- git plugins
 
 return {
-  { 'sindrets/diffview.nvim' },
+  { 'sindrets/diffview.nvim', cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggle', 'DiffviewFileHistory' } },
 
   -- handy git ui
   {
@@ -30,6 +30,7 @@ return {
   },
   {
     'akinsho/git-conflict.nvim',
+    event = 'VeryLazy',
     init = function()
       require('git-conflict').setup {
         default_mappings = false,
@@ -47,6 +48,7 @@ return {
   },
   {
     'f-person/git-blame.nvim',
+    event = 'VeryLazy',
     init = function()
       require('gitblame').setup {
         enabled = false,

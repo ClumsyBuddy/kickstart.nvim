@@ -2,6 +2,8 @@ return {
 
   { -- manage projects
     'gnikdroy/projections.nvim',
+    enabled = false,
+    event = { 'VimEnter', 'BufReadPre' },
     keys = {
       {
         '<leader>fp',

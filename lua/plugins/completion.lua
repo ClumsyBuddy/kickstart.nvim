@@ -1,6 +1,7 @@
 return {
   {
     'windwp/nvim-autopairs',
+    event = 'InsertEnter',
     config = function()
       require('nvim-autopairs').setup {}
       require('nvim-autopairs').remove_rule '`'
@@ -70,22 +71,22 @@ return {
             select = true,
           },
 
-          -- ['<Tab>'] = cmp.mapping(function(fallback)
-          --   if cmp.visible() then
-          --     cmp.select_next_item()
-          --   elseif has_words_before() then
-          --     cmp.complete()
-          --   else
-          --     fallback()
-          --   end
-          -- end, { 'i', 's' }),
-          -- ['<S-Tab>'] = cmp.mapping(function(fallback)
-          --   if cmp.visible() then
-          --     cmp.select_prev_item()
-          --   else
-          --     fallback()
-          --   end
-          -- end, { 'i', 's' }),
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            elseif has_words_before() then
+              cmp.complete()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
 
           ['<C-l>'] = cmp.mapping(function()
             if luasnip.expand_or_locally_jumpable() then
@@ -117,7 +118,8 @@ return {
               calc = '[calc]',
               latex_symbols = '[tex]',
               emoji = '[emoji]',
-              copilot = '[Copiot]',
+              copilot = '[Copilot]',
+              codecompanion = '[CC]',
             },
           },
         },
@@ -135,6 +137,7 @@ return {
           { name = 'latex_symbols' },
           { name = 'emoji' },
           { name = 'copilot' },
+          { name = 'codecompanion' },
         },
         view = {
           entries = 'native',

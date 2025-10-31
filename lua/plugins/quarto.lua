@@ -124,6 +124,7 @@ return {
 
   { -- preview equations
     'jbyuki/nabla.nvim',
+    ft = { 'markdown', 'quarto', 'latex', 'tex' },
     keys = {
       { '<leader>qm', ':lua require"nabla".toggle_virt()<cr>', desc = 'toggle [m]ath equations' },
     },

@@ -2,6 +2,11 @@ return {
   -- dashboard to greet
   {
     'goolord/alpha-nvim',
+    event = 'VimEnter',
+    cond = function()
+      -- Only load when starting without files
+      return vim.fn.argc() == 0
+    end,
     dependencies = { 'nvim-tree/nvim-web-devicons', 'nvim-mini/mini.icons' },
     config = function()
       local alpha = require 'alpha'

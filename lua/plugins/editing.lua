@@ -1,7 +1,7 @@
 return {
 
   -- disables hungry features for files larget than 2MB
-  { 'LunarVim/bigfile.nvim' },
+  { 'LunarVim/bigfile.nvim', event = 'BufReadPre' },
 
   -- add/delete/change can be done with the keymaps
   -- ys{motion}{char}, ds{char}, and cs{target}{replacement}
@@ -24,11 +24,13 @@ return {
 
   { -- format things as tables
     'godlygeek/tabular',
+    cmd = 'Tabularize',
   },
 
   { -- Autoformat
     'stevearc/conform.nvim',
     enabled = true,
+    event = { 'BufWritePre' },
     config = function()
       require('conform').setup {
         notify_on_error = false,
@@ -82,6 +84,7 @@ return {
 
   { -- generate docstrings
     'danymat/neogen',
+    lazy = true,
     cmd = { 'Neogen' },
     dependencies = 'nvim-treesitter/nvim-treesitter',
     config = true,
@@ -89,7 +92,8 @@ return {
 
   {
     'chrishrb/gx.nvim',
-    enabled = false,
+    enabled = true,
+    lazy = true,
     keys = { { 'gx', '<cmd>Browse<cr>', mode = { 'n', 'x' } } },
     cmd = { 'Browse' },
     init = function()
@@ -141,5 +145,30 @@ return {
     dependencies = {
       'nvim-lua/plenary.nvim',
     },
+  },
+
+  {
+    'echasnovski/mini.nvim',
+    event = 'VeryLazy',
+    config = function()
+      -- Better Around/Inside textobjects
+      --
+      -- Examples:
+      --  - va)  - [V]isually select [A]round [)]paren
+      --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
+      --  - ci'  - [C]hange [I]nside [']quote
+      require('mini.ai').setup {
+        n_lines = 500,
+        -- Move "next/last" off the bare a/i prefixes to avoid overlap waits
+        mappings = {
+          around = 'a',
+          inside = 'i',
+          around_next = 'gan',
+          around_last = 'gal',
+          inside_next = 'gin',
+          inside_last = 'gil',
+        },
+      }
+    end,
   },
 }
