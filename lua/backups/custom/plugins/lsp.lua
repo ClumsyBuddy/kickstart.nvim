@@ -132,6 +132,12 @@ return {
         -- clangd = {},
         -- gopls = {},
         -- rust_analyzer = {},
+        omnisharp = {
+          cmd = { 'D:/OmniSharp/OmniSharp.exe', '--languageserver', '--hostPID', tostring(vim.fn.getpid()) },
+          -- You can add more settings here if needed
+          -- root_dir = require('lspconfig.util').root_pattern('*.sln', '*.csproj', '.git'),
+          -- capabilities = capabilities,
+        },
         basedpyright = {
           settings = {
             typeCheckingMode = 'standard',
