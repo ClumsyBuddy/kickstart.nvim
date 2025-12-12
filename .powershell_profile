@@ -1,20 +1,20 @@
 
-#f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
+#f45873b3-b655-43a6-b217-97c00aa0db58 powertoys commandnotfound module
 
-Import-Module -Name Microsoft.WinGet.CommandNotFound
+import-module -name microsoft.winget.commandnotfound
 #f45873b3-b655-43a6-b217-97c00aa0db58
 
 
 
-function Activate-Venv {
-    if (Test-Path ".venv/Scripts/activate.ps1") {
-        & ".venv/Scripts/activate.ps1"
-        Write-Host "Virtual environment activated!" -ForegroundColor Green
-    } elseif (Test-Path ".venv/Scripts/Activate.ps1") {
-        & ".venv/Scripts/Activate.ps1"
-        Write-Host "Virtual environment activated!" -ForegroundColor Green
+function activate-venv {
+    if (test-path ".venv/scripts/activate.ps1") {
+        & ".venv/scripts/activate.ps1"
+        write-host "virtual environment activated!" -foregroundcolor green
+    } elseif (test-path ".venv/scripts/activate.ps1") {
+        & ".venv/scripts/activate.ps1"
+        write-host "virtual environment activated!" -foregroundcolor green
     } else {
-        Write-Host "No virtual environment found in current directory" -ForegroundColor Red
+        write-host "no virtual environment found in current directory" -foregroundcolor red
     }
 }
 
@@ -22,49 +22,78 @@ function Activate-Venv {
 
 function open-rel {
 <#
-.SYNOPSIS
-Opens a folder in File Explorer or Visual Studio Code, resolving relative paths from the current directory.
+.synopsis
+opens a folder in file explorer or visual studio code, resolving relative paths from the current directory.
 
-.DESCRIPTION
-This function takes a relative path (with or without a trailing slash) and opens it in File Explorer by default.
-Optionally, it can open the folder in Visual Studio Code if the -VsCode switch is provided.
+.description
+this function takes a relative path (with or without a trailing slash) and opens it in file explorer by default.
+optionally, it can open the folder in visual studio code if the -vscode switch is provided.
 
-.PARAMETER relativePath
-The relative path to the folder you want to open.
+.parameter relativepath
+the relative path to the folder you want to open.
 
-.PARAMETER VsCode
-Switch to open the folder in Visual Studio Code instead of File Explorer.
+.parameter vscode
+switch to open the folder in visual studio code instead of file explorer.
 
-.EXAMPLE
-open-rel 'Late Fees on Deferred Payments'
-Opens the folder in File Explorer.
+.example
+open-rel 'late fees on deferred payments'
+opens the folder in file explorer.
 
-.EXAMPLE
-open-rel 'Late Fees on Deferred Payments' -VsCode
-Opens the folder in Visual Studio Code.
+.example
+open-rel 'late fees on deferred payments' -vscode
+opens the folder in visual studio code.
 #>
 
     param(
-        [string]$relativePath,
+        [string]$relativepath,
         [switch]$code
     )
 
-    # Remove trailing backslash or slash if present
-    $cleanPath = $relativePath.TrimEnd('\', '/')
+    # remove trailing backslash or slash if present
+    $cleanpath = $relativepath.trimend('\', '/')
 
-    # Resolve the full path
-    $fullPath = Resolve-Path $cleanPath -ErrorAction Stop
+    # resolve the full path
+    $fullpath = resolve-path $cleanpath -erroraction stop
 
     if ($code) {
-        # Open the folder in Visual Studio Code
-        code $fullPath
+        # open the folder in visual studio code
+        code $fullpath
     } else {
-        # Open the folder in File Explorer
-        explorer $fullPath
+        # open the folder in file explorer
+        explorer $fullpath
     }
 }
 
 
+function rwsl {
+    param(
+        [parameter(valuefromremainingarguments=$true)]
+        [string[]]$args
+    )
 
-Invoke-Expression (&starship init powershell)
-Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    $winpath = (get-location).path
+    $wslpath = $winpath -replace '^([a-za-z]):', '/mnt/$1' -replace '\\', '/'
+    $wslpath = $wslpath.tolower()
+
+    $command = ($args -join ' ')
+    $fullcmd = "cd '$wslpath' && $command"
+
+    wsl bash -lc "$fullcmd"
+}
+
+function open-currentpathinnewtab {
+    # opens a new tab in the current window (-w 0) in the current directory (.)
+    wt -w 0 nt -d .
+}
+
+
+
+
+
+invoke-expression (&starship init powershell)
+invoke-expression (& { (zoxide init powershell | out-string) })
+
+
+set-alias -name finds -value findstr
+# sets 'nt' as the shortcut for the function above
+set-alias -name nt -value open-currentpathinnewtab

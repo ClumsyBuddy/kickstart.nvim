@@ -221,28 +221,28 @@ wk.add({
 
 -- visual mode
 wk.add({
-  { '<cr>', send_region, desc = 'run code region' },
+  -- { '<cr>', send_region, desc = 'run code region' },
   { '<M-j>', ":m'>+<cr>`<my`>mzgv`yo`z", desc = 'move line down' },
   { '<M-k>', ":m'<-2<cr>`>my`<mzgv`yo`z", desc = 'move line up' },
-  { '.', ':norm .<cr>', desc = 'repat last normal mode command' },
-  { 'q', ':norm @q<cr>', desc = 'repat q macro' },
+  { '.', ':norm .<cr>', desc = 'repeat last normal mode command' },
+  { '<C-q>', ':norm @q<cr>', desc = 'repeat q macro' },
 }, { mode = 'v' })
 
 -- visual with <leader>
-wk.add({
+wk.add {
   { '<leader>p', '"_dP', desc = 'replace without overwriting reg', mode = 'v' },
   { '<leader>d', '"_d', desc = 'delete without overwriting reg', mode = 'v' },
-})
+}
 
 -- insert mode
-wk.add({
+wk.add {
   { '<m-->', ' <- ', desc = 'assign', mode = 'i' },
   { '<m-m>', ' |>', desc = 'pipe', mode = 'i' },
   { '<m-i>', insert_r_chunk, desc = 'r code chunk', mode = 'i' },
   { '<C-M-i>', insert_py_chunk, desc = 'python code chunk', mode = 'i' },
   { '<m-I>', insert_py_chunk, desc = 'python code chunk', mode = 'i' },
   { '<c-x><c-x>', '<c-x><c-o>', desc = 'omnifunc completion', mode = 'i' },
-})
+}
 
 local function new_terminal(lang)
   vim.cmd('vsplit term://' .. lang)
@@ -273,10 +273,14 @@ wk.add({
   { '<leader><cr>', send_cell, desc = 'run code cell' },
   { '<leader>c', group = '[c]ode / [c]ell / [c]hunk' },
   { '<leader>cn', new_terminal_shell, desc = '[n]ew terminal with shell' },
-  { '<leader>cr', function()
+  {
+    '<leader>cr',
+    function()
       vim.b['quarto_is_r_mode'] = true
       new_terminal_r()
-    end, desc = 'new [R] terminal' },
+    end,
+    desc = 'new [R] terminal',
+  },
   { '<leader>cp', new_terminal_python, desc = 'new [p]ython terminal' },
   { '<leader>ci', new_terminal_ipython, desc = 'new [i]python terminal' },
   { '<leader>cj', new_terminal_julia, desc = 'new [j]ulia terminal' },
@@ -323,9 +327,13 @@ wk.add({
   { '<leader>la', vim.lsp.buf.code_action, desc = 'code [a]ction' },
   { '<leader>le', vim.diagnostic.open_float, desc = 'diagnostics (show hover [e]rror)' },
   { '<leader>ld', group = '[d]iagnostics' },
-  { '<leader>ldd', function()
+  {
+    '<leader>ldd',
+    function()
       vim.diagnostic.enable(false)
-    end, desc = '[d]isable' },
+    end,
+    desc = '[d]isable',
+  },
   { '<leader>lde', vim.diagnostic.enable, desc = '[e]nable' },
   { '<leader>lg', ':Neogen<cr>', desc = 'neo[g]en docstring' },
   { '<leader>o', group = '[o]tter & c[o]de' },
@@ -348,9 +356,13 @@ wk.add({
   { '<leader>qra', ':QuartoSendAll<cr>', desc = 'run [a]ll' },
   { '<leader>qrb', ':QuartoSendBelow<cr>', desc = 'run [b]elow' },
   { '<leader>qe', require('otter').export, desc = '[e]xport' },
-  { '<leader>qE', function()
+  {
+    '<leader>qE',
+    function()
       require('otter').export(true)
-    end, desc = '[E]xport with overwrite' },
+    end,
+    desc = '[E]xport with overwrite',
+  },
   { '<leader>r', group = '[r] R specific tools' },
   { '<leader>rt', show_r_table, desc = 'show [t]able' },
   { '<leader>v', group = '[v]im' },
