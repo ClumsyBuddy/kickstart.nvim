@@ -1,9 +1,21 @@
 
 #f45873b3-b655-43a6-b217-97c00aa0db58 powertoys commandnotfound module
 
-import-module -name microsoft.winget.commandnotfound
+# import-module -name microsoft.winget.commandnotfound
 #f45873b3-b655-43a6-b217-97c00aa0db58
+# Lazy-load WinGet CommandNotFound only when needed
+$script:WingetCNFLoaded = $false
+$ExecutionContext.InvokeCommand.CommandNotFoundAction = {
+  param($Name, $Args)
 
+  if (-not $script:WingetCNFLoaded) {
+    $script:WingetCNFLoaded = $true
+    Import-Module -Name microsoft.winget.commandnotfound -ErrorAction SilentlyContinue | Out-Null
+  }
+
+  # Re-throw the original "not found" so the module can handle it via its hook
+  throw [System.Management.Automation.CommandNotFoundException]::new($Name)
+}
 
 
 function activate-venv {
@@ -87,11 +99,52 @@ function open-currentpathinnewtab {
 }
 
 
+# zoxide (buffer all lines, then invoke once)
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    $zoxideInit = (zoxide init powershell) -join "`n"
+    if (-not [string]::IsNullOrWhiteSpace($zoxideInit)) {
+        Invoke-Expression $zoxideInit
+    }
+}
 
 
+# Lazy-init starship on first prompt render (no background job)
+function global:prompt {
+    if (-not $script:StarshipInited) {
+        $script:StarshipInited = $true
 
-invoke-expression (&starship init powershell)
-invoke-expression (& { (zoxide init powershell | out-string) })
+        $current = $MyInvocation.MyCommand.ScriptBlock
+        $init = & starship init powershell
+
+        if ($init) { Invoke-Expression ($init -join "`n") }
+
+        # If starship replaced prompt, call the new prompt immediately
+        $new = (Get-Command prompt -CommandType Function).ScriptBlock
+        if ($new -ne $current) { return & $new }
+    }
+
+    # Fallback if starship isn't available or init failed
+    "PS $((Get-Location).Path)> "
+}
+
+
+function cht {
+    # Join all arguments with a '+' sign
+    $query = $args -join '+'
+    # Use curl.exe (not PowerShell's 'curl' alias) to preserve ANSI colors
+    curl.exe "cht.sh/$query"
+}
+
+function ai {
+    $query = $args -join ' '
+    copilot -p "$query"
+}
+
+
+# invoke-expression (&starship init powershell)
+# # invoke-expression (& { (zoxide init powershell | out-string) })
+
+
 
 
 set-alias -name finds -value findstr
