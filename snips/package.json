@@ -9,14 +9,9 @@
                 "language": [
                     "markdown",
                     "tex",
-                    "html",
-                    "quarto"
+                    "html"
                 ],
                 "path": "./snippets/global.json"
-            },
-            {
-                "language": "quarto",
-                "path": "./snippets/quarto.json"
             },
             {
                 "language": "markdown",

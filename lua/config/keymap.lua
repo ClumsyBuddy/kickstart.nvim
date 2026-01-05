@@ -3,8 +3,6 @@ local wk = require 'which-key'
 
 P = vim.print
 
-vim.g['quarto_is_r_mode'] = nil
-vim.g['reticulate_running'] = false
 
 local nmap = function(key, effect)
   vim.keymap.set('n', key, effect, { silent = true, noremap = true })
@@ -48,81 +46,18 @@ imap(';', ';<c-g>u')
 
 nmap('Q', '<Nop>')
 
---- Send code to terminal with vim-slime
---- If an R terminal has been opend, this is in r_mode
---- and will handle python code via reticulate when sent
---- from a python chunk.
---- TODO: incorpoarate this into quarto-nvim plugin
---- such that QuartoRun functions get the same capabilities
---- TODO: figure out bracketed paste for reticulate python repl.
-local function send_cell()
-  if vim.b['quarto_is_r_mode'] == nil then
-    vim.fn['slime#send_cell']()
-    return
-  end
-  if vim.b['quarto_is_r_mode'] == true then
-    vim.g.slime_python_ipython = 0
-    local is_python = require('otter.tools.functions').is_otter_language_context 'python'
-    if is_python and not vim.b['reticulate_running'] then
-      vim.fn['slime#send']('reticulate::repl_python()' .. '\r')
-      vim.b['reticulate_running'] = true
-    end
-    if not is_python and vim.b['reticulate_running'] then
-      vim.fn['slime#send']('exit' .. '\r')
-      vim.b['reticulate_running'] = false
-    end
-    vim.fn['slime#send_cell']()
-  end
-end
 
---- Send code to terminal with vim-slime
---- If an R terminal has been opend, this is in r_mode
---- and will handle python code via reticulate when sent
---- from a python chunk.
-local slime_send_region_cmd = ':<C-u>call slime#send_op(visualmode(), 1)<CR>'
-slime_send_region_cmd = vim.api.nvim_replace_termcodes(slime_send_region_cmd, true, false, true)
-local function send_region()
-  -- if filetyps is not quarto, just send_region
-  if vim.bo.filetype ~= 'quarto' or vim.b['quarto_is_r_mode'] == nil then
-    vim.cmd('normal' .. slime_send_region_cmd)
-    return
-  end
-  if vim.b['quarto_is_r_mode'] == true then
-    vim.g.slime_python_ipython = 0
-    local is_python = require('otter.tools.functions').is_otter_language_context 'python'
-    if is_python and not vim.b['reticulate_running'] then
-      vim.fn['slime#send']('reticulate::repl_python()' .. '\r')
-      vim.b['reticulate_running'] = true
-    end
-    if not is_python and vim.b['reticulate_running'] then
-      vim.fn['slime#send']('exit' .. '\r')
-      vim.b['reticulate_running'] = false
-    end
-    vim.cmd('normal' .. slime_send_region_cmd)
-  end
-end
 
 -- send code with ctrl+Enter
 -- just like in e.g. RStudio
 -- needs kitty (or other terminal) config:
 -- map shift+enter send_text all \x1b[13;2u
 -- map ctrl+enter send_text all \x1b[13;5u
-nmap('<c-cr>', send_cell)
-nmap('<s-cr>', send_cell)
-imap('<c-cr>', send_cell)
-imap('<s-cr>', send_cell)
 
 --- Show R dataframe in the browser
 -- might not use what you think should be your default web browser
 -- because it is a plain html file, not a link
 -- see https://askubuntu.com/a/864698 for places to look for
-local function show_r_table()
-  local node = vim.treesitter.get_node { ignore_injections = false }
-  assert(node, 'no symbol found under cursor')
-  local text = vim.treesitter.get_node_text(node, 0)
-  local cmd = [[call slime#send("DT::datatable(]] .. text .. [[)" . "\r")]]
-  vim.cmd(cmd)
-end
 
 -- keep selection after indent/dedent
 vmap('>', '>gv')
@@ -150,12 +85,12 @@ local function toggle_light_dark_theme()
 end
 
 local is_code_chunk = function()
-  local current, _ = require('otter.keeper').get_current_language_context()
-  if current then
-    return true
-  else
+  local ok, keeper = pcall(require, 'otter.keeper')
+  if not ok or not keeper then
     return false
   end
+  local current = select(1, keeper.get_current_language_context())
+  return current ~= nil
 end
 
 --- Insert code chunk of given language
@@ -173,9 +108,6 @@ local insert_code_chunk = function(lang)
   vim.api.nvim_feedkeys(keys, 'n', false)
 end
 
-local insert_r_chunk = function()
-  insert_code_chunk 'r'
-end
 
 local insert_py_chunk = function()
   insert_code_chunk 'python'
@@ -210,7 +142,6 @@ wk.add({
   { 'gN', 'Nzzzv', desc = 'center search' },
   { 'gl', '<c-]>', desc = 'open help link' },
   { 'gf', ':e <cfile><CR>', desc = 'edit file' },
-  { '<m-i>', insert_r_chunk, desc = 'r code chunk' },
   { '<C-M-i>', insert_py_chunk, desc = 'python code chunk' },
   { '<m-I>', insert_py_chunk, desc = 'python code chunk' },
   { ']q', ':silent cnext<cr>', desc = '[q]uickfix next' },
@@ -238,7 +169,6 @@ wk.add {
 wk.add {
   { '<m-->', ' <- ', desc = 'assign', mode = 'i' },
   { '<m-m>', ' |>', desc = 'pipe', mode = 'i' },
-  { '<m-i>', insert_r_chunk, desc = 'r code chunk', mode = 'i' },
   { '<C-M-i>', insert_py_chunk, desc = 'python code chunk', mode = 'i' },
   { '<m-I>', insert_py_chunk, desc = 'python code chunk', mode = 'i' },
   { '<c-x><c-x>', '<c-x><c-o>', desc = 'omnifunc completion', mode = 'i' },
@@ -252,9 +182,6 @@ local function new_terminal_python()
   new_terminal 'python'
 end
 
-local function new_terminal_r()
-  new_terminal 'R --no-save'
-end
 
 local function new_terminal_ipython()
   new_terminal 'ipython --no-confirm-exit'
@@ -270,40 +197,64 @@ end
 
 -- normal mode with <leader>
 wk.add({
-  { '<leader><cr>', send_cell, desc = 'run code cell' },
   { '<leader>c', group = '[c]ode / [c]ell / [c]hunk' },
   { '<leader>cn', new_terminal_shell, desc = '[n]ew terminal with shell' },
-  {
-    '<leader>cr',
-    function()
-      vim.b['quarto_is_r_mode'] = true
-      new_terminal_r()
-    end,
-    desc = 'new [R] terminal',
-  },
   { '<leader>cp', new_terminal_python, desc = 'new [p]ython terminal' },
   { '<leader>ci', new_terminal_ipython, desc = 'new [i]python terminal' },
   { '<leader>cj', new_terminal_julia, desc = 'new [j]ulia terminal' },
   { '<leader>e', group = '[e]dit' },
   { '<leader>d', group = '[d]ebug' },
   { '<leader>dt', group = '[t]est' },
-  { '<leader>f', group = '[f]ind (telescope)' },
-  { '<leader>ff', '<cmd>Telescope find_files<cr>', desc = '[f]iles' },
-  { '<leader>fh', '<cmd>Telescope help_tags<cr>', desc = '[h]elp' },
-  { '<leader>fk', '<cmd>Telescope keymaps<cr>', desc = '[k]eymaps' },
-  { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = '[g]rep' },
-  { '<leader>fb', '<cmd>Telescope current_buffer_fuzzy_find<cr>', desc = '[b]uffer fuzzy find' },
-  { '<leader>fm', '<cmd>Telescope marks<cr>', desc = '[m]arks' },
-  { '<leader>fM', '<cmd>Telescope man_pages<cr>', desc = '[M]an pages' },
-  { '<leader>fc', '<cmd>Telescope git_commits<cr>', desc = 'git [c]ommits' },
-  { '<leader>f<space>', '<cmd>Telescope buffers<cr>', desc = '[ ] buffers' },
-  { '<leader>fd', '<cmd>Telescope buffers<cr>', desc = '[d] buffers' },
-  { '<leader>fq', '<cmd>Telescope quickfix<cr>', desc = '[q]uickfix' },
-  { '<leader>fl', '<cmd>Telescope loclist<cr>', desc = '[l]oclist' },
-  { '<leader>fj', '<cmd>Telescope jumplist<cr>', desc = '[j]umplist' },
+  { '<leader>f', group = '[f]ind (snacks)' },
+  { '<leader>s', group = '[s]earch' },
+  { '<leader>m', group = '[m]isc' },
+  { '<leader>b', group = '[b]uffer' },
+  { '<leader>ff', function() require('misc.pickers').find_files() end, desc = '[f]iles' },
+  { '<leader>fh', function() require('misc.pickers').help_tags() end, desc = '[h]elp' },
+  { '<leader>fk', function() require('misc.pickers').keymaps() end, desc = '[k]eymaps' },
+  { '<leader>fg', function() require('misc.pickers').live_grep() end, desc = '[g]rep' },
+  { '<leader>fb', function() require('misc.pickers').current_buffer_fuzzy_find() end, desc = '[b]uffer fuzzy find' },
+  { '<leader>fm', function() require('misc.pickers').marks() end, desc = '[m]arks' },
+  { '<leader>fM', function() require('misc.pickers').man_pages() end, desc = '[M]an pages' },
+  { '<leader>fc', function() require('misc.pickers').git_commits() end, desc = 'git [c]ommits' },
+  { '<leader>f<space>', function() require('misc.pickers').buffers() end, desc = '[ ] buffers' },
+  { '<leader>fd', function() require('misc.pickers').buffers() end, desc = '[d] buffers' },
+  { '<leader>fq', function() require('misc.pickers').quickfix() end, desc = '[q]uickfix' },
+  { '<leader>fl', function() require('misc.pickers').loclist() end, desc = '[l]oclist' },
+  { '<leader>fj', function() require('misc.pickers').jumplist() end, desc = '[j]umplist' },
+
+  -- Snacks-enhanced pickers (use Snacks if available, else fall back)
+  { '<leader>su', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.undo then pcall(s.undo) else vim.notify('Undo picker not available', vim.log.levels.WARN) end
+    end, desc = 'Undo history' },
+  { '<leader>sd', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.diagnostics then pcall(s.diagnostics) else
+        local ok2, tb = pcall(require, 'telescope.builtin')
+        if ok2 and tb and tb.diagnostics then tb.diagnostics() else vim.diagnostic.setqflist({ open = true }) end
+      end
+    end, desc = 'Diagnostics' },
+  { '<leader>s/', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.search_history then pcall(s.search_history) else vim.notify('Search history not available', vim.log.levels.WARN) end
+    end, desc = 'Search History' },
+  { '<leader>sB', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.grep_buffers then pcall(s.grep_buffers) else require('misc.pickers').current_buffer_fuzzy_find() end
+    end, desc = 'Grep Open Buffers' },
+  { '<leader>sw', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.grep_word then pcall(s.grep_word) else require('misc.pickers').live_grep() end
+    end, desc = 'Grep word/selection', mode = { 'n', 'x' } },
+
   { '<leader>g', group = '[g]it' },
   { '<leader>gc', ':GitConflictRefresh<cr>', desc = '[c]onflict' },
   { '<leader>gs', ':Gitsigns<cr>', desc = 'git [s]igns' },
+  { '<leader>gg', function()
+      local ok,sn = pcall(require, 'snacks')
+      if ok and sn and sn.lazygit then pcall(sn.lazygit.open) else vim.cmd('vsplit | terminal lazygit') end
+    end, desc = 'Lazygit' },
   { '<leader>gwc', ":lua require('telescope').extensions.git_worktree.create_git_worktree()<cr>", desc = 'worktree create' },
   { '<leader>gws', ":lua require('telescope').extensions.git_worktree.git_worktrees()<cr>", desc = 'worktree switch' },
   { '<leader>gd', group = '[d]iff' },
@@ -336,35 +287,15 @@ wk.add({
   },
   { '<leader>lde', vim.diagnostic.enable, desc = '[e]nable' },
   { '<leader>lg', ':Neogen<cr>', desc = 'neo[g]en docstring' },
-  { '<leader>o', group = '[o]tter & c[o]de' },
-  { '<leader>oa', require('otter').activate, desc = 'otter [a]ctivate' },
-  { '<leader>od', require('otter').deactivate, desc = 'otter [d]eactivate' },
-  { '<leader>oc', 'O# %%<cr>', desc = 'magic [c]omment code chunk # %%' },
-  { '<leader>or', insert_r_chunk, desc = '[r] code chunk' },
-  { '<leader>op', insert_py_chunk, desc = '[p]ython code chunk' },
-  { '<leader>oj', insert_julia_chunk, desc = '[j]ulia code chunk' },
-  { '<leader>ob', insert_bash_chunk, desc = '[b]ash code chunk' },
-  { '<leader>oo', insert_ojs_chunk, desc = '[o]bservable js code chunk' },
-  { '<leader>ol', insert_lua_chunk, desc = '[l]lua code chunk' },
-  { '<leader>q', group = '[q]uarto' },
-  { '<leader>qa', ':QuartoActivate<cr>', desc = '[a]ctivate' },
-  { '<leader>qp', ":lua require'quarto'.quartoPreview()<cr>", desc = '[p]review' },
-  { '<leader>qq', ":lua require'quarto'.quartoClosePreview()<cr>", desc = '[q]uiet preview' },
-  { '<leader>qh', ':QuartoHelp ', desc = '[h]elp' },
-  { '<leader>qr', group = '[r]un' },
-  { '<leader>qrr', ':QuartoSendAbove<cr>', desc = 'to cu[r]sor' },
-  { '<leader>qra', ':QuartoSendAll<cr>', desc = 'run [a]ll' },
-  { '<leader>qrb', ':QuartoSendBelow<cr>', desc = 'run [b]elow' },
-  { '<leader>qe', require('otter').export, desc = '[e]xport' },
-  {
-    '<leader>qE',
-    function()
-      require('otter').export(true)
-    end,
-    desc = '[E]xport with overwrite',
-  },
+  { '<leader>ss', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.lsp_symbols then pcall(s.lsp_symbols) else vim.lsp.buf.document_symbol() end
+    end, desc = 'LSP Symbols' },
+  { '<leader>sS', function()
+      local ok,s = pcall(require, 'snacks.picker')
+      if ok and s and s.lsp_workspace_symbols then pcall(s.lsp_workspace_symbols) else vim.lsp.buf.workspace_symbol() end
+    end, desc = 'LSP Workspace Symbols' },
   { '<leader>r', group = '[r] R specific tools' },
-  { '<leader>rt', show_r_table, desc = 'show [t]able' },
   { '<leader>v', group = '[v]im' },
   { '<leader>vt', toggle_light_dark_theme, desc = '[t]oggle light/dark theme' },
   { '<leader>vc', ':Telescope colorscheme<cr>', desc = '[c]olortheme' },

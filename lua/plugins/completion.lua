@@ -26,7 +26,6 @@ return {
       'L3MON4D3/LuaSnip',
       'rafamadriz/friendly-snippets',
       'onsails/lspkind-nvim',
-      { 'zbirenbaum/copilot-cmp', opts = {} },
       'jmbuhr/otter.nvim',
     },
     config = function()
@@ -118,8 +117,6 @@ return {
               calc = '[calc]',
               latex_symbols = '[tex]',
               emoji = '[emoji]',
-              copilot = '[Copilot]',
-              codecompanion = '[CC]',
             },
           },
         },
@@ -136,8 +133,7 @@ return {
           { name = 'calc' },
           { name = 'latex_symbols' },
           { name = 'emoji' },
-          { name = 'copilot' },
-          { name = 'codecompanion' },
+
         },
         view = {
           entries = 'native',
@@ -153,8 +149,7 @@ return {
       require('luasnip.loaders.from_vscode').lazy_load()
       -- for custom snippets
       require('luasnip.loaders.from_vscode').lazy_load { paths = { vim.fn.stdpath 'config' .. '/snips' } }
-      -- link quarto and rmarkdown to markdown snippets
-      luasnip.filetype_extend('quarto', { 'markdown' })
+      -- link rmarkdown to markdown snippets
       luasnip.filetype_extend('rmarkdown', { 'markdown' })
     end,
   },

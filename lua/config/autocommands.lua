@@ -18,6 +18,11 @@ vim.api.nvim_create_autocmd({ 'TermOpen' }, {
     vim.cmd.setlocal 'nonumber'
     vim.wo.signcolumn = 'no'
     set_terminal_keymaps()
+    -- If this terminal appears to be lazygit, make <Esc> close it (exit term-mode and close window)
+    local name = vim.api.nvim_buf_get_name(0)
+    if name and name:match('[Ll]azygit') then
+      vim.keymap.set('t', '<esc>', [[<C-\><C-n>:close<CR>]], { buffer = 0 })
+    end
   end,
 })
 

@@ -2,6 +2,7 @@ return {
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    event = { 'BufReadPre', 'BufNewFile' },
     -- enabled = false,
     enabled = function()
       return not vim.g.vscode

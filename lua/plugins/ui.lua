@@ -3,6 +3,7 @@ return {
   -- a nice seletion UI also to find and open files
   {
     'nvim-telescope/telescope.nvim',
+    event = 'VeryLazy',
     dependencies = {
       { 'nvim-telescope/telescope-ui-select.nvim' },
       { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
@@ -368,7 +369,7 @@ return {
     '3rd/image.nvim',
     enabled = false,
     dev = false,
-    ft = { 'markdown', 'quarto', 'vimwiki' },
+    ft = { 'markdown', 'vimwiki' },
     config = function()
       -- Requirements
       -- https://github.com/3rd/image.nvim?tab=readme-ov-file#requirements
@@ -387,7 +388,7 @@ return {
           markdown = {
             enabled = true,
             only_render_image_at_cursor = true,
-            filetypes = { 'markdown', 'vimwiki', 'quarto' },
+            filetypes = { 'markdown', 'vimwiki' },
           },
         },
         editor_only_render_when_focused = false,

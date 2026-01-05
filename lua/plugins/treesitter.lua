@@ -1,6 +1,7 @@
 return {
   {
     'nvim-treesitter/nvim-treesitter',
+    event = { 'BufReadPost', 'BufNewFile' },
     dev = false,
     dependencies = {
       {
@@ -14,7 +15,7 @@ return {
     config = function()
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        auto_install = true,
+        auto_install = false,
         ensure_installed = {
           'r',
           'python',
