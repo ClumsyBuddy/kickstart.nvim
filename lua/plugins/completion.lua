@@ -27,6 +27,7 @@ return {
       'rafamadriz/friendly-snippets',
       'onsails/lspkind-nvim',
       'jmbuhr/otter.nvim',
+      'zbirenbaum/copilot-cmp',
     },
     config = function()
       local cmp = require 'cmp'
@@ -121,6 +122,8 @@ return {
           },
         },
         sources = {
+          -- Copilot inline suggestions via copilot-cmp (lazy by copilot.lua setup)
+          { name = 'copilot', priority = 250 },
           -- { name = 'otter' }, -- for code chunks in quarto
           { name = 'path' },
           { name = 'nvim_lsp' },

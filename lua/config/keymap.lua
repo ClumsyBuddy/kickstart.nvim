@@ -309,4 +309,14 @@ wk.add({
   { '<leader>x', group = 'e[x]ecute' },
   { '<leader>xx', ':w<cr>:source %<cr>', desc = '[x] source %' },
   { '<leader>a', group = '[A]i tools' },
+  { '<leader>ac', ':CopilotChat<cr>', desc = 'CopilotChat' },
+  { '<leader>at', function()
+      local ok, s = pcall(require, 'copilot.suggestion')
+      if ok and s and s.toggle_auto_trigger then
+        pcall(s.toggle_auto_trigger)
+        vim.notify('Toggled Copilot auto-trigger', vim.log.levels.INFO)
+      else
+        vim.notify('Copilot suggestion module not available', vim.log.levels.WARN)
+      end
+    end, desc = 'Toggle Copilot suggestions' },
 }, { mode = 'n' })

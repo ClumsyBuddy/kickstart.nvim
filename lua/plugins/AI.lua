@@ -1,13 +1,45 @@
 return {
   {
-    'jackMort/ChatGPT.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim', 'MunifTanjim/nui.nvim' },
-    cmd = { 'ChatGPT', 'ChatGPTRun' },
+    'zbirenbaum/copilot.lua',
+    enabled = function()
+      return not vim.g.vscode
+    end,
+    cmd = 'Copilot',
+    event = 'InsertEnter',
+    config = function()
+      require('copilot').setup {
+        suggestion = {
+          enabled = false,
+          auto_trigger = true,
+          debounce = 250,
+          keymap = {
+            accept = '<C-y>',
+            accept_word = false,
+            accept_line = false,
+            next = '<M-]>',
+            prev = '<M-[>',
+            dismiss = '<C-]>',
+          },
+        },
+        panel = { enabled = false },
+      }
+    end,
+  },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'MunifTanjim/nui.nvim', 'zbirenbaum/copilot.lua' },
+    cmd = { 'CopilotChat', 'CopilotChatToggle', 'CopilotChatModels', 'CopilotChatCommit' },
     keys = {
-      { '<leader>ac', ':ChatGPT<cr>', desc = 'ChatGPT: Open' },
+      { '<leader>cc', ':CopilotChat<cr>', desc = 'CopilotChat: Open' },
+      { '<leader>ccc', ':CopilotChatCommit<cr>', desc = 'CopilotChat: Commit', mode = { 'n', 'v' } },
     },
     config = function()
-      require('chatgpt').setup({})
+      require('CopilotChat').setup {
+        provider = 'copilot',
+        window = {
+          layout = 'float',
+        },
+      }
     end,
   },
   {
