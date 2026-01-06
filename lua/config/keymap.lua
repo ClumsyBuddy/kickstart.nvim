@@ -255,6 +255,9 @@ wk.add({
       local ok,sn = pcall(require, 'snacks')
       if ok and sn and sn.lazygit then pcall(sn.lazygit.open) else vim.cmd('vsplit | terminal lazygit') end
     end, desc = 'Lazygit' },
+  { '<leader>td', function()
+      require('trouble').open('workspace_diagnostics')
+    end, desc = 'Trouble: Workspace Diagnostics' },
   { '<leader>gwc', ":lua require('telescope').extensions.git_worktree.create_git_worktree()<cr>", desc = 'worktree create' },
   { '<leader>gws', ":lua require('telescope').extensions.git_worktree.git_worktrees()<cr>", desc = 'worktree switch' },
   { '<leader>gd', group = '[d]iff' },
@@ -309,6 +312,7 @@ wk.add({
   { '<leader>x', group = 'e[x]ecute' },
   { '<leader>xx', ':w<cr>:source %<cr>', desc = '[x] source %' },
   { '<leader>a', group = '[A]i tools' },
+  { '<leader>st', ':Store<cr>', desc = 'Open Store' },
   { '<leader>ac', ':CopilotChat<cr>', desc = 'CopilotChat' },
   { '<leader>at', function()
       local ok, s = pcall(require, 'copilot.suggestion')
@@ -319,4 +323,7 @@ wk.add({
         vim.notify('Copilot suggestion module not available', vim.log.levels.WARN)
       end
     end, desc = 'Toggle Copilot suggestions' },
+  { '<leader>tt', function()
+      vim.cmd('TroubleToggle document_diagnostics')
+    end, desc = 'Toggle Trouble (document diagnostics)' },
 }, { mode = 'n' })

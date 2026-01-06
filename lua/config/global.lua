@@ -114,6 +114,9 @@ vim.diagnostic.config {
 vim.filetype.add {
   extension = {
     ojs = 'javascript',
+    c3 = "c3",
+    c3i = "c3",
+    c3t = "c3"
   },
 }
 
