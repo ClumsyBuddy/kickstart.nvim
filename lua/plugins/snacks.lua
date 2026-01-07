@@ -2,13 +2,13 @@ return {
   {
     "folke/snacks.nvim",
     priority = 1000,
-    lazy = true,
+    -- lazy = true,
     module = 'snacks',
     event = 'VeryLazy',
     ---@type snacks.Config
     opts = {
       bigfile = { enabled = true },
-      dashboard = { enabled = true },
+      -- dashboard = { enabled = true },
       explorer = { enabled = true },
       indent = { enabled = true },
       input = { enabled = true },
