@@ -2,6 +2,7 @@ return {
   -- dashboard to greet
   {
     'goolord/alpha-nvim',
+    enabled = false,
     event = 'VimEnter',
     cond = function()
       -- Only load when starting without files

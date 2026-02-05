@@ -33,7 +33,6 @@ return {
       configs.setup {
         auto_install = false,
         ensure_installed = {
-          'r',
           'python',
           'markdown',
           'markdown_inline',

@@ -1,5 +1,4 @@
 -- plugins for notetaking and knowledge management
-
 return {
 
   {

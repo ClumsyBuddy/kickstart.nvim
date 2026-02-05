@@ -42,7 +42,6 @@ return {
       local telescope_config = require 'telescope.config'
       -- Clone the default Telescope configuration
       local vimgrep_arguments = { unpack(telescope_config.values.vimgrep_arguments) }
-      -- I don't want to search in the `docs` directory (rendered quarto output).
       table.insert(vimgrep_arguments, '--glob')
       table.insert(vimgrep_arguments, '!docs/*')
 
@@ -180,7 +179,7 @@ return {
 
   { -- scrollbar
     'dstein64/nvim-scrollview',
-    enabled = true,
+    enabled = false,
     event = 'VeryLazy',
     opts = {
       current_only = true,
@@ -189,12 +188,12 @@ return {
 
   { -- highlight occurences of current word
     'RRethy/vim-illuminate',
-    enabled = false,
+    enabled = true,
   },
 
   { -- filetree
     'nvim-tree/nvim-tree.lua',
-    enabled = true,
+    enabled = false,
     keys = {
       { '<c-b>', ':NvimTreeToggle<cr>', desc = 'toggle nvim-tree' },
     },
@@ -245,6 +244,7 @@ return {
 
   { -- show tree of symbols in the current file
     'simrat39/symbols-outline.nvim',
+    enabled = false,
     cmd = 'SymbolsOutline',
     keys = {
       { '<leader>lo', ':SymbolsOutline<cr>', desc = 'symbols outline' },
@@ -343,16 +343,6 @@ return {
     dependencies = 'nvim-treesitter/nvim-treesitter',
     config = function()
       require('headlines').setup {
-        quarto = {
-          query = vim.treesitter.query.parse(
-            'markdown',
-            [[
-                (fenced_code_block) @codeblock
-                ]]
-          ),
-          codeblock_highlight = 'CodeBlock',
-          treesitter_language = 'markdown',
-        },
         markdown = {
           query = vim.treesitter.query.parse(
             'markdown',
