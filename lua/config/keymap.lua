@@ -140,7 +140,7 @@ wk.add({
   { '<esc>', '<cmd>noh<cr>', desc = 'remove search highlight' },
   { 'n', 'nzzzv', desc = 'center search' },
   { 'gN', 'Nzzzv', desc = 'center search' },
-  { 'gl', '<c-]>', desc = 'open help link' },
+  -- ORIGINAL: { 'gl', '<c-]>', desc = 'open help link' }, -- Removed: conflicts with Comment.nvim line toggle
   { 'gf', ':e <cfile><CR>', desc = 'edit file' },
   { '<C-M-i>', insert_py_chunk, desc = 'python code chunk' },
   { '<m-I>', insert_py_chunk, desc = 'python code chunk' },

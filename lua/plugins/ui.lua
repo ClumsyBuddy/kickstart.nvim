@@ -129,7 +129,8 @@ return {
     },
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     keys = {
-      { '-', ':Oil<cr>', desc = 'oil' },
+      -- ORIGINAL: { '-', ':Oil<cr>', desc = 'oil' }, -- Changed to <leader>eo to free '-' for decrement
+      { '<leader>eo', ':Oil<cr>', desc = '[o]il' },
       { '<leader>ef', ':Oil<cr>', desc = 'edit [f]iles' },
     },
     cmd = 'Oil',
@@ -270,7 +271,7 @@ return {
     'akinsho/toggleterm.nvim',
     opts = {
       open_mapping = [[<c-\>]],
-      direction = 'float',
+      direction = 'horizontal',
     },
   },
 

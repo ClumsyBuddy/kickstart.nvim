@@ -1,1 +1,0 @@
--- quarto ftplugin removed
