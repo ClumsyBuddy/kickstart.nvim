@@ -97,9 +97,9 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
   end,
 })
 
--- [[ Set the runtime path for Neovim ]]
-
-local user_profile = vim.fn.getenv 'USERPROFILE'
+-- [[ Load non-plugin config files ]]
+require 'config.global'
+require 'config.autocommands'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -113,59 +113,24 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure and install plugins ]]
-require('lazy').setup({
-  'tpope/vim-sleuth',
-  {
-    'numToStr/Comment.nvim',
-    lazy = true,
-    opts = {
-      toggler = {
-        line = 'gl', -- moved from 'gcc'
-        block = 'gbc',
-      },
-      opleader = {
-        line = 'gc',
-        block = 'gb',
-      },
-    },
+-- Loads all plugin specs from lua/plugins/ folder
+require('lazy').setup('plugins', {
+  defaults = {
+    version = false,
   },
-
-  {
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
+  dev = {
+    path = '~/projects',
+    fallback = true,
   },
-
-  {
-    'folke/lazydev.nvim',
-    ft = 'lua',
-    opts = {
-      library = {
-        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
-      },
-    },
+  install = {
+    missing = true,
+    colorscheme = { 'default' },
   },
-
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns',
-  require 'config.global',
-  require 'config.lazy',
-  require 'config.autocommands',
-
-  -- { import = 'custom.plugins' },
-}, {
+  checker = { enabled = false },
+  change_detection = {
+    enabled = true,
+    notify = false,
+  },
   ui = {
     icons = vim.g.have_nerd_font and {} or {
       cmd = '⌘',
