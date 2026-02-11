@@ -122,8 +122,8 @@ wk.add({
 
 -- visual mode
 wk.add({
-  { '<M-j>', ":m'>+<cr>`<my`>mzgv`yo`z", desc = 'move line down' },
-  { '<M-k>', ":m'<-2<cr>`>my`<mzgv`yo`z", desc = 'move line up' },
+  { '<M-j>', "ddp", desc = 'move line down' },
+  { '<M-k>', "ddkkp", desc = 'move line up' },
   { '.', ':norm .<cr>', desc = 'repeat last normal mode command' },
   { '<C-q>', ':norm @q<cr>', desc = 'repeat q macro' },
 }, { mode = 'v' })
