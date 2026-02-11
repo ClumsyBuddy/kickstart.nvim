@@ -4,28 +4,32 @@ local wk = require 'which-key'
 P = vim.print
 
 
-local nmap = function(key, effect)
-  vim.keymap.set('n', key, effect, { silent = true, noremap = true })
+local nmap = function(key, effect, description)
+  description = description or ""
+  vim.keymap.set('n', key, effect, { silent = true, noremap = true, desc=description})
 end
 
-local vmap = function(key, effect)
-  vim.keymap.set('v', key, effect, { silent = true, noremap = true })
+local vmap = function(key, effect, description)
+  description = description or ""
+  vim.keymap.set('v', key, effect, { silent = true, noremap = true, desc=description})
 end
 
-local imap = function(key, effect)
-  vim.keymap.set('i', key, effect, { silent = true, noremap = true })
+local imap = function(key, effect, description)
+  description = description or ""
+  vim.keymap.set('i', key, effect, { silent = true, noremap = true, desc=description })
 end
 
-local cmap = function(key, effect)
-  vim.keymap.set('c', key, effect, { silent = true, noremap = true })
+local cmap = function(key, effect, description)
+  description = description or ""
+  vim.keymap.set('c', key, effect, { silent = true, noremap = true, desc=description })
 end
 
 -- move in command line
 cmap('<C-a>', '<Home>')
 
 -- save with ctrl+s
-imap('<C-s>', '<esc>:update<cr><esc>')
-nmap('<C-s>', '<cmd>:update<cr><esc>')
+-- imap('<C-s>', '<esc>:update<cr><esc>')
+-- nmap('<C-s>', '<cmd>:update<cr><esc>')
 
 -- Move between windows using <ctrl> direction
 nmap('<C-j>', '<C-W>j')
@@ -36,37 +40,19 @@ nmap('<C-l>', '<C-W>l')
 -- Resize window using <shift> arrow keys
 nmap('<S-Up>', '<cmd>resize +2<CR>')
 nmap('<S-Down>', '<cmd>resize -2<CR>')
-nmap('<S-Left>', '<cmd>vertical resize -2<CR>')
-nmap('<S-Right>', '<cmd>vertical resize +2<CR>')
+nmap('<S-Left>', '<cmd>vertical resize +2<CR>')
+nmap('<S-Right>', '<cmd>vertical resize -2<CR>')
 
 -- Add undo break-points
-imap(',', ',<c-g>u')
-imap('.', '.<c-g>u')
-imap(';', ';<c-g>u')
-
-nmap('Q', '<Nop>')
-
-
-
--- send code with ctrl+Enter
--- just like in e.g. RStudio
--- needs kitty (or other terminal) config:
--- map shift+enter send_text all \x1b[13;2u
--- map ctrl+enter send_text all \x1b[13;5u
-
---- Show R dataframe in the browser
--- might not use what you think should be your default web browser
--- because it is a plain html file, not a link
--- see https://askubuntu.com/a/864698 for places to look for
+-- imap(',', ',<c-g>u')
+-- imap('.', '.<c-g>u')
+-- imap(';', ';<c-g>u')
+--
+-- nmap('Q', '<Nop>')
 
 -- keep selection after indent/dedent
 vmap('>', '>gv')
 vmap('<', '<gv')
-
--- center after search and jumps
--- nmap('n', 'nzz')
--- nmap('<c-d>', '<c-d>zz')
--- nmap('<c-u>', '<c-u>zz')
 
 -- move between splits and tabs
 nmap('<c-h>', '<c-w>h')
@@ -117,17 +103,17 @@ local insert_lua_chunk = function()
   insert_code_chunk 'lua'
 end
 
-local insert_julia_chunk = function()
-  insert_code_chunk 'julia'
-end
-
 local insert_bash_chunk = function()
   insert_code_chunk 'bash'
 end
 
-local insert_ojs_chunk = function()
-  insert_code_chunk 'ojs'
+
+
+
+local function new_terminal(lang)
+  vim.cmd('vsplit term://' .. lang)
 end
+
 
 --show kepbindings with whichkey
 --add your own here if you want them to
@@ -138,9 +124,6 @@ wk.add({
   { '<c-LeftMouse>', '<cmd>lua vim.lsp.buf.definition()<CR>', desc = 'go to definition' },
   { '<c-q>', '<cmd>q<cr>', desc = 'close buffer' },
   { '<esc>', '<cmd>noh<cr>', desc = 'remove search highlight' },
-  -- { 'n', 'nzzzv', desc = 'center search' },
-  -- { 'gN', 'Nzzzv', desc = 'center search' },
-  -- ORIGINAL: { 'gl', '<c-]>', desc = 'open help link' }, -- Removed: conflicts with Comment.nvim line toggle
   { 'gf', ':e <cfile><CR>', desc = 'edit file' },
   { '<C-M-i>', insert_py_chunk, desc = 'python code chunk' },
   { '<m-I>', insert_py_chunk, desc = 'python code chunk' },
@@ -152,7 +135,6 @@ wk.add({
 
 -- visual mode
 wk.add({
-  -- { '<cr>', send_region, desc = 'run code region' },
   { '<M-j>', ":m'>+<cr>`<my`>mzgv`yo`z", desc = 'move line down' },
   { '<M-k>', ":m'<-2<cr>`>my`<mzgv`yo`z", desc = 'move line up' },
   { '.', ':norm .<cr>', desc = 'repeat last normal mode command' },
@@ -277,7 +259,6 @@ wk.add({
     desc = '[d]isable',
   },
   { '<leader>lde', vim.diagnostic.enable, desc = '[e]nable' },
-  -- { '<leader>lg', ':Neogen<cr>', desc = 'neo[g]en docstring' },
   { '<leader>ss', function()
       local ok,s = pcall(require, 'snacks.picker')
       if ok and s and s.lsp_symbols then pcall(s.lsp_symbols) else vim.lsp.buf.document_symbol() end
@@ -286,32 +267,15 @@ wk.add({
       local ok,s = pcall(require, 'snacks.picker')
       if ok and s and s.lsp_workspace_symbols then pcall(s.lsp_workspace_symbols) else vim.lsp.buf.workspace_symbol() end
     end, desc = 'LSP Workspace Symbols' },
-  -- { '<leader>r', group = '[r] R specific tools' },
   { '<leader>v', group = '[v]im' },
-  -- { '<leader>vt', toggle_light_dark_theme, desc = '[t]oggle light/dark theme' },
-  -- { '<leader>vc', ':Telescope colorscheme<cr>', desc = '[c]olortheme' },
   { '<leader>vl', ':Lazy<cr>', desc = '[l]azy package manager' },
   { '<leader>vm', ':Mason<cr>', desc = '[m]ason software installer' },
   { '<leader>vr', group = '[R]esession' },
   { '<leader>vs', ':e $MYVIMRC | :cd %:p:h | split . | wincmd k<cr>', desc = '[s]ettings, edit vimrc' },
   { '<leader>vh', ':execute "h " . expand("<cword>")<cr>', desc = 'vim [h]elp for current word' },
-  -- { '<leader>vo', group = '[o]verseer' },
   { '<leader>w', group = '[W]orkspace' },
   { '<leader>x', group = 'e[x]ecute' },
   { '<leader>xx', ':w<cr>:source %<cr>', desc = '[x] source %' },
   { '<leader>a', group = '[A]i tools' },
   { '<leader>st', ':Store<cr>', desc = 'Open Store' },
-  -- { '<leader>ac', ':CopilotChat<cr>', desc = 'CopilotChat' },
-  -- { '<leader>at', function()
-  --     local ok, s = pcall(require, 'copilot.suggestion')
-  --     if ok and s and s.toggle_auto_trigger then
-  --       pcall(s.toggle_auto_trigger)
-  --       vim.notify('Toggled Copilot auto-trigger', vim.log.levels.INFO)
-  --     else
-  --       vim.notify('Copilot suggestion module not available', vim.log.levels.WARN)
-  --     end
-  --   end, desc = 'Toggle Copilot suggestions' },
-  -- { '<leader>tt', function()
-  --     vim.cmd('TroubleToggle document_diagnostics')
-  --   end, desc = 'Toggle Trouble (document diagnostics)' },
 }, { mode = 'n' })
