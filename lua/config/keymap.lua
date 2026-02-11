@@ -70,26 +70,13 @@ local function toggle_light_dark_theme()
   end
 end
 
-local is_code_chunk = function()
-  local ok, keeper = pcall(require, 'otter.keeper')
-  if not ok or not keeper then
-    return false
-  end
-  local current = select(1, keeper.get_current_language_context())
-  return current ~= nil
-end
 
 --- Insert code chunk of given language
 --- Splits current chunk if already within a chunk
 --- @param lang string
 local insert_code_chunk = function(lang)
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), 'n', true)
-  local keys
-  if is_code_chunk() then
-    keys = [[o```<cr><cr>```{]] .. lang .. [[}<esc>o]]
-  else
-    keys = [[o```{]] .. lang .. [[}<cr>```<esc>O]]
-  end
+  local keys = [[o```{]] .. lang .. [[}<cr>```<esc>O]]
   keys = vim.api.nvim_replace_termcodes(keys, true, false, true)
   vim.api.nvim_feedkeys(keys, 'n', false)
 end
