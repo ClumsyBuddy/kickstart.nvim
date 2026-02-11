@@ -64,9 +64,9 @@ vmap('>', '>gv')
 vmap('<', '<gv')
 
 -- center after search and jumps
-nmap('n', 'nzz')
-nmap('<c-d>', '<c-d>zz')
-nmap('<c-u>', '<c-u>zz')
+-- nmap('n', 'nzz')
+-- nmap('<c-d>', '<c-d>zz')
+-- nmap('<c-u>', '<c-u>zz')
 
 -- move between splits and tabs
 nmap('<c-h>', '<c-w>h')
@@ -138,8 +138,8 @@ wk.add({
   { '<c-LeftMouse>', '<cmd>lua vim.lsp.buf.definition()<CR>', desc = 'go to definition' },
   { '<c-q>', '<cmd>q<cr>', desc = 'close buffer' },
   { '<esc>', '<cmd>noh<cr>', desc = 'remove search highlight' },
-  { 'n', 'nzzzv', desc = 'center search' },
-  { 'gN', 'Nzzzv', desc = 'center search' },
+  -- { 'n', 'nzzzv', desc = 'center search' },
+  -- { 'gN', 'Nzzzv', desc = 'center search' },
   -- ORIGINAL: { 'gl', '<c-]>', desc = 'open help link' }, -- Removed: conflicts with Comment.nvim line toggle
   { 'gf', ':e <cfile><CR>', desc = 'edit file' },
   { '<C-M-i>', insert_py_chunk, desc = 'python code chunk' },
@@ -174,34 +174,21 @@ wk.add {
   { '<c-x><c-x>', '<c-x><c-o>', desc = 'omnifunc completion', mode = 'i' },
 }
 
-local function new_terminal(lang)
-  vim.cmd('vsplit term://' .. lang)
-end
-
 local function new_terminal_python()
-  new_terminal 'python'
+  new_terminal 'uv run python'
 end
 
 
 local function new_terminal_ipython()
-  new_terminal 'ipython --no-confirm-exit'
+  new_terminal 'uv tool run ipython --no-confirm-exit'
 end
 
-local function new_terminal_julia()
-  new_terminal 'julia'
-end
-
-local function new_terminal_shell()
-  new_terminal '$SHELL'
-end
 
 -- normal mode with <leader>
 wk.add({
   { '<leader>c', group = '[c]ode / [c]ell / [c]hunk' },
-  { '<leader>cn', new_terminal_shell, desc = '[n]ew terminal with shell' },
   { '<leader>cp', new_terminal_python, desc = 'new [p]ython terminal' },
   { '<leader>ci', new_terminal_ipython, desc = 'new [i]python terminal' },
-  { '<leader>cj', new_terminal_julia, desc = 'new [j]ulia terminal' },
   { '<leader>e', group = '[e]dit' },
   { '<leader>d', group = '[d]ebug' },
   { '<leader>dt', group = '[t]est' },
@@ -255,6 +242,7 @@ wk.add({
       local ok,sn = pcall(require, 'snacks')
       if ok and sn and sn.lazygit then pcall(sn.lazygit.open) else vim.cmd('vsplit | terminal lazygit') end
     end, desc = 'Lazygit' },
+  { "<C-\\>", function() Snacks.terminal() end, desc = "Terminal" },
   { '<leader>td', function()
       require('trouble').open('workspace_diagnostics')
     end, desc = 'Trouble: Workspace Diagnostics' },
@@ -289,7 +277,7 @@ wk.add({
     desc = '[d]isable',
   },
   { '<leader>lde', vim.diagnostic.enable, desc = '[e]nable' },
-  { '<leader>lg', ':Neogen<cr>', desc = 'neo[g]en docstring' },
+  -- { '<leader>lg', ':Neogen<cr>', desc = 'neo[g]en docstring' },
   { '<leader>ss', function()
       local ok,s = pcall(require, 'snacks.picker')
       if ok and s and s.lsp_symbols then pcall(s.lsp_symbols) else vim.lsp.buf.document_symbol() end
@@ -298,32 +286,32 @@ wk.add({
       local ok,s = pcall(require, 'snacks.picker')
       if ok and s and s.lsp_workspace_symbols then pcall(s.lsp_workspace_symbols) else vim.lsp.buf.workspace_symbol() end
     end, desc = 'LSP Workspace Symbols' },
-  { '<leader>r', group = '[r] R specific tools' },
+  -- { '<leader>r', group = '[r] R specific tools' },
   { '<leader>v', group = '[v]im' },
-  { '<leader>vt', toggle_light_dark_theme, desc = '[t]oggle light/dark theme' },
-  { '<leader>vc', ':Telescope colorscheme<cr>', desc = '[c]olortheme' },
+  -- { '<leader>vt', toggle_light_dark_theme, desc = '[t]oggle light/dark theme' },
+  -- { '<leader>vc', ':Telescope colorscheme<cr>', desc = '[c]olortheme' },
   { '<leader>vl', ':Lazy<cr>', desc = '[l]azy package manager' },
   { '<leader>vm', ':Mason<cr>', desc = '[m]ason software installer' },
   { '<leader>vr', group = '[R]esession' },
   { '<leader>vs', ':e $MYVIMRC | :cd %:p:h | split . | wincmd k<cr>', desc = '[s]ettings, edit vimrc' },
   { '<leader>vh', ':execute "h " . expand("<cword>")<cr>', desc = 'vim [h]elp for current word' },
-  { '<leader>vo', group = '[o]verseer' },
+  -- { '<leader>vo', group = '[o]verseer' },
   { '<leader>w', group = '[W]orkspace' },
   { '<leader>x', group = 'e[x]ecute' },
   { '<leader>xx', ':w<cr>:source %<cr>', desc = '[x] source %' },
   { '<leader>a', group = '[A]i tools' },
   { '<leader>st', ':Store<cr>', desc = 'Open Store' },
-  { '<leader>ac', ':CopilotChat<cr>', desc = 'CopilotChat' },
-  { '<leader>at', function()
-      local ok, s = pcall(require, 'copilot.suggestion')
-      if ok and s and s.toggle_auto_trigger then
-        pcall(s.toggle_auto_trigger)
-        vim.notify('Toggled Copilot auto-trigger', vim.log.levels.INFO)
-      else
-        vim.notify('Copilot suggestion module not available', vim.log.levels.WARN)
-      end
-    end, desc = 'Toggle Copilot suggestions' },
-  { '<leader>tt', function()
-      vim.cmd('TroubleToggle document_diagnostics')
-    end, desc = 'Toggle Trouble (document diagnostics)' },
+  -- { '<leader>ac', ':CopilotChat<cr>', desc = 'CopilotChat' },
+  -- { '<leader>at', function()
+  --     local ok, s = pcall(require, 'copilot.suggestion')
+  --     if ok and s and s.toggle_auto_trigger then
+  --       pcall(s.toggle_auto_trigger)
+  --       vim.notify('Toggled Copilot auto-trigger', vim.log.levels.INFO)
+  --     else
+  --       vim.notify('Copilot suggestion module not available', vim.log.levels.WARN)
+  --     end
+  --   end, desc = 'Toggle Copilot suggestions' },
+  -- { '<leader>tt', function()
+  --     vim.cmd('TroubleToggle document_diagnostics')
+  --   end, desc = 'Toggle Trouble (document diagnostics)' },
 }, { mode = 'n' })

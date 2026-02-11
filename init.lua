@@ -43,7 +43,7 @@ vim.opt.listchars = {
 }
 vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
-vim.opt.scrolloff = 10
+-- vim.opt.scrolloff = 10
 vim.opt.confirm = true
 
 if vim.fn.has 'win32' == 1 then

@@ -16,10 +16,16 @@ return {
         enabled = true,
         timeout = 3000,
       },
+      terminal = {
+        win = {
+          style = "terminal",
+          position = "bottom", -- Change to "bottom" for a horizontal split
+        }
+      },
       picker = { enabled = true },
       quickfile = { enabled = true },
       scope = { enabled = true },
-      scroll = { enabled = true },
+      scroll = { enabled = false },
       statuscolumn = { enabled = true },
       words = { enabled = true },
       styles = {
@@ -27,6 +33,9 @@ return {
           -- wo = { wrap = true } -- Wrap notifications
         }
       },
+    },
+    keys = {
+      -- If you want a specific command like 'lazygit' in a toggle window:
     },
     init = function()
       vim.api.nvim_create_autocmd("User", {
