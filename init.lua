@@ -22,6 +22,19 @@ vim.schedule(function()
   vim.opt.clipboard = ''
 end)
 
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+
+
 vim.opt.breakindent = true
 vim.opt.wrap = false
 vim.opt.undofile = true
@@ -100,6 +113,14 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
 -- [[ Load non-plugin config files ]]
 require 'config.global'
 require 'config.autocommands'
+-- [[ Set the runtime path for Neovim ]]
+-- vim.g.python3_host_prog = vim.fn.expand("~/.local/share/nvim/venv/bin/python")
+-- Check if the venv exists before setting it
+local venv_python = vim.fn.expand("~/.local/share/nvim/venv/bin/python")
+if vim.fn.executable(venv_python) == 1 then
+    vim.g.python3_host_prog = venv_python
+end
+-- local user_profile = vim.fn.getenv 'USERPROFILE'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
