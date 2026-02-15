@@ -224,6 +224,30 @@ return {
             end
             return util.root_pattern('package.json', 'tsconfig.json', '.git')(fname)
           end,
+          init_options = {
+            plugins = {
+              {
+                name = '@vue/typescript-plugin',
+                location = vim.fn.stdpath 'data' .. '/mason/packages/vue-language-server/node_modules/@vue/language-server',
+                languages = { 'vue' },
+                configNamespace = 'typescript',
+              },
+            },
+          },
+          filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+        },
+        -- Vue/Nuxt Language Server
+        vue_ls = {
+          root_dir = function(fname)
+            local util = require 'lspconfig.util'
+            -- Only activate for Vue/Nuxt projects (not Angular)
+            if util.root_pattern('angular.json', 'nx.json')(fname) then
+              return nil
+            end
+            -- Look for Vue/Nuxt project markers
+            return util.root_pattern('nuxt.config.ts', 'nuxt.config.js', 'vue.config.js', 'vite.config.ts', 'vite.config.js')(fname)
+              or util.root_pattern('package.json')(fname)
+          end,
         },
         angularls = {
           cmd = {
@@ -251,6 +275,7 @@ return {
         'tailwindcss-language-server', -- Tailwind CSS Language Server
         'typescript-language-server', -- TypeScript Language Server
         'angular-language-server', -- Angular Language Server
+        'vue-language-server', -- Vue Language Server (Volar)
       })
 
       require('mason-lspconfig').setup {
