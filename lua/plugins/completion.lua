@@ -7,7 +7,13 @@ return {
       require('nvim-autopairs').remove_rule '`'
     end,
   },
-
+  {
+      'jmbuhr/otter.nvim',
+      dependencies = {
+        'nvim-treesitter/nvim-treesitter',
+      },
+      opts = {},
+  },
   { -- completion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
