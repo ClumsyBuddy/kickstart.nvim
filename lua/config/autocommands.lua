@@ -1,6 +1,12 @@
 local function set_terminal_keymaps()
   local opts = { buffer = 0 }
-  vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+  local bufname = vim.api.nvim_buf_get_name(0)
+
+  -- Don't override <Esc> for lazygit (it needs escape for navigation)
+  if not bufname:match('lazygit') then
+    vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+  end
+
   vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
   vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
   vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
