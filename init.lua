@@ -78,7 +78,15 @@ vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close current buffer'
 vim.keymap.set('n', '<leader>ddw', 'viwd', { desc = 'Delete current word' })
 vim.keymap.set('n', '<leader>dyw', 'viwy', { desc = 'Yank current word' })
 -- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- Double-escape to exit terminal mode (but not in lazygit)
+vim.keymap.set('t', '<Esc><Esc>', function()
+  local bufname = vim.api.nvim_buf_get_name(0)
+  if bufname:match('lazygit') then
+    -- Send actual escape keys to lazygit
+    return '<Esc><Esc>'
+  end
+  return '<C-\\><C-n>'
+end, { desc = 'Exit terminal mode', expr = true })
 
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
