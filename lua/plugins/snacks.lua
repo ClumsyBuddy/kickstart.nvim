@@ -19,7 +19,7 @@ return {
       terminal = {
         win = {
           style = "terminal",
-          position = "bottom", -- Change to "bottom" for a horizontal split
+          position = "bottom",
         }
       },
       picker = { enabled = true },
@@ -35,7 +35,14 @@ return {
       },
     },
     keys = {
-      -- If you want a specific command like 'lazygit' in a toggle window:
+      -- Terminal toggle works in both normal and terminal mode
+      { "<C-\\>", function() Snacks.terminal() end, desc = "Toggle Terminal", mode = { "n", "t" } },
+      -- Numbered terminals (like ToggleTerm's 1<C-\>, 2<C-\>, etc.)
+      { "1<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "1" } }) end, desc = "Toggle Terminal 1", mode = { "n", "t" } },
+      { "2<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "2" } }) end, desc = "Toggle Terminal 2", mode = { "n", "t" } },
+      { "3<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "3" } }) end, desc = "Toggle Terminal 3", mode = { "n", "t" } },
+      { "4<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "4" } }) end, desc = "Toggle Terminal 4", mode = { "n", "t" } },
+      { "5<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "5" } }) end, desc = "Toggle Terminal 5", mode = { "n", "t" } },
     },
     init = function()
       vim.api.nvim_create_autocmd("User", {

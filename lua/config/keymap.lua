@@ -101,6 +101,252 @@ local function new_terminal(lang)
   vim.cmd('vsplit term://' .. lang)
 end
 
+-- ============================================================================
+-- Terminal Management (ToggleTerm-like functionality using Snacks)
+-- ============================================================================
+
+-- Store for numbered terminals (like ToggleTerm's 1-9 terminals)
+local terminals = {}
+
+--- Get or create a numbered terminal
+--- @param num number Terminal number (1-9)
+--- @param opts table|nil { position = "bottom"|"right"|"left"|"top"|"float" }
+local function get_or_create_terminal(num, opts)
+  opts = opts or {}
+  local position = opts.position or "bottom"
+
+  -- Create terminal config for this number
+  local term_opts = {
+    win = {
+      position = position,
+      style = position == "float" and "float" or "terminal",
+    },
+  }
+
+  -- Use Snacks.terminal with a unique identifier based on number
+  -- The 'cwd' and 'env' combo creates unique terminal instances
+  return Snacks.terminal.toggle(nil, vim.tbl_extend("force", term_opts, {
+    cwd = vim.fn.getcwd(),
+    env = { TERM_NUM = tostring(num) },
+  }))
+end
+
+--- Toggle a specific numbered terminal (like ToggleTerm's <num><C-\>)
+--- @param num number Terminal number
+--- @param position string|nil Position for new terminal
+local function toggle_terminal(num, position)
+  num = num or 1
+  position = position or "bottom"
+  get_or_create_terminal(num, { position = position })
+end
+
+--- Spawn a new terminal with optional position and name
+--- @param opts table|nil { position = "bottom"|"right"|"left"|"top"|"float", name = string }
+local function term_new(opts)
+  opts = opts or {}
+  local position = opts.position or "bottom"
+
+  local win_opts = {
+    position = position,
+    style = position == "float" and "float" or "terminal",
+  }
+
+  return Snacks.terminal.open(nil, { win = win_opts })
+end
+
+--- Get all terminal buffers
+--- @return table List of terminal buffer info
+local function get_terminal_buffers()
+  local term_bufs = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+      local buftype = vim.bo[buf].buftype
+      local bufname = vim.api.nvim_buf_get_name(buf)
+      if buftype == "terminal" then
+        -- Get terminal job info
+        local job_id = vim.b[buf].terminal_job_id
+        local pid = job_id and vim.fn.jobpid(job_id) or nil
+        table.insert(term_bufs, {
+          buf = buf,
+          name = bufname,
+          pid = pid,
+          job_id = job_id,
+        })
+      end
+    end
+  end
+  return term_bufs
+end
+
+--- Select a terminal from a picker (like ToggleTerm's TermSelect)
+local function term_select()
+  local term_bufs = get_terminal_buffers()
+
+  if #term_bufs == 0 then
+    vim.notify("No terminals open", vim.log.levels.INFO)
+    return
+  end
+
+  -- Try to use Snacks picker first, fall back to vim.ui.select
+  local ok, picker = pcall(require, 'snacks.picker')
+  if ok and picker then
+    local items = {}
+    for i, term in ipairs(term_bufs) do
+      local display = string.format("%d: %s (pid: %s)", i, vim.fn.fnamemodify(term.name, ":t"), term.pid or "?")
+      table.insert(items, {
+        text = display,
+        buf = term.buf,
+        idx = i,
+      })
+    end
+
+    picker.select(items, {
+      prompt = "Select Terminal",
+      format_item = function(item) return item.text end,
+    }, function(choice)
+      if choice then
+        -- Find or create window for the terminal
+        local wins = vim.fn.win_findbuf(choice.buf)
+        if #wins > 0 then
+          vim.api.nvim_set_current_win(wins[1])
+        else
+          vim.cmd('botright split')
+          vim.api.nvim_set_current_buf(choice.buf)
+        end
+        vim.cmd('startinsert')
+      end
+    end)
+  else
+    -- Fallback to vim.ui.select
+    local items = {}
+    local buf_map = {}
+    for i, term in ipairs(term_bufs) do
+      local display = string.format("%d: %s (pid: %s)", i, vim.fn.fnamemodify(term.name, ":t"), term.pid or "?")
+      table.insert(items, display)
+      buf_map[display] = term.buf
+    end
+
+    vim.ui.select(items, {
+      prompt = "Select Terminal:",
+    }, function(choice)
+      if choice then
+        local buf = buf_map[choice]
+        local wins = vim.fn.win_findbuf(buf)
+        if #wins > 0 then
+          vim.api.nvim_set_current_win(wins[1])
+        else
+          vim.cmd('botright split')
+          vim.api.nvim_set_current_buf(buf)
+        end
+        vim.cmd('startinsert')
+      end
+    end)
+  end
+end
+
+--- Send text to a terminal
+--- @param text string Text to send
+--- @param term_buf number|nil Terminal buffer (uses first terminal if nil)
+local function term_send(text, term_buf)
+  local term_bufs = get_terminal_buffers()
+  if #term_bufs == 0 then
+    vim.notify("No terminals open", vim.log.levels.WARN)
+    return
+  end
+
+  local buf = term_buf or term_bufs[1].buf
+  local job_id = vim.b[buf].terminal_job_id
+  if job_id then
+    vim.fn.chansend(job_id, text .. "\n")
+  end
+end
+
+--- Change current buffer to vertical split
+local function change_to_vsplit()
+  local buf = vim.api.nvim_get_current_buf()
+  vim.cmd('close')
+  vim.cmd('vsplit')
+  vim.api.nvim_set_current_buf(buf)
+end
+
+--- Change current buffer to horizontal split
+local function change_to_hsplit()
+  local buf = vim.api.nvim_get_current_buf()
+  vim.cmd('close')
+  vim.cmd('split')
+  vim.api.nvim_set_current_buf(buf)
+end
+
+-- ============================================================================
+-- User Commands
+-- ============================================================================
+
+-- :TermNew [position] - Open new terminal
+vim.api.nvim_create_user_command('TermNew', function(cmd_opts)
+  local position = cmd_opts.fargs[1] or "bottom"
+  term_new({ position = position })
+end, {
+  nargs = '?',
+  complete = function() return { 'bottom', 'right', 'left', 'top', 'float' } end,
+  desc = 'Open new terminal. Usage: :TermNew [position]'
+})
+
+-- :TermSelect - Pick from open terminals
+vim.api.nvim_create_user_command('TermSelect', function()
+  term_select()
+end, {
+  desc = 'Select from open terminals'
+})
+
+-- :TermToggle [num] [position] - Toggle numbered terminal (like ToggleTerm)
+vim.api.nvim_create_user_command('TermToggle', function(cmd_opts)
+  local num = tonumber(cmd_opts.fargs[1]) or 1
+  local position = cmd_opts.fargs[2] or "bottom"
+  toggle_terminal(num, position)
+end, {
+  nargs = '*',
+  complete = function(_, cmdline)
+    local args = vim.split(cmdline, '%s+')
+    if #args <= 2 then
+      return { '1', '2', '3', '4', '5', '6', '7', '8', '9' }
+    else
+      return { 'bottom', 'right', 'left', 'top', 'float' }
+    end
+  end,
+  desc = 'Toggle numbered terminal. Usage: :TermToggle [num] [position]'
+})
+
+-- :TermSend [text] - Send text to terminal
+vim.api.nvim_create_user_command('TermSend', function(cmd_opts)
+  term_send(cmd_opts.args)
+end, {
+  nargs = '+',
+  desc = 'Send text to terminal'
+})
+
+-- :TermList - List all terminals
+vim.api.nvim_create_user_command('TermList', function()
+  local term_bufs = get_terminal_buffers()
+  if #term_bufs == 0 then
+    vim.notify("No terminals open", vim.log.levels.INFO)
+    return
+  end
+  for i, term in ipairs(term_bufs) do
+    print(string.format("%d: buf=%d pid=%s %s", i, term.buf, term.pid or "?", vim.fn.fnamemodify(term.name, ":t")))
+  end
+end, {
+  desc = 'List all open terminals'
+})
+
+-- :Cvsplit - Change current buffer to vertical split
+vim.api.nvim_create_user_command('Cvsplit', change_to_vsplit, {
+  desc = 'Change current buffer to vertical split'
+})
+
+-- :Chsplit - Change current buffer to horizontal split
+vim.api.nvim_create_user_command('Chsplit', change_to_hsplit, {
+  desc = 'Change current buffer to horizontal split'
+})
 
 --show kepbindings with whichkey
 --add your own here if you want them to
@@ -207,11 +453,10 @@ wk.add({
   { '<leader>g', group = '[g]it' },
   { '<leader>gc', ':GitConflictRefresh<cr>', desc = '[c]onflict' },
   { '<leader>gs', ':Gitsigns<cr>', desc = 'git [s]igns' },
-  { '<leader>gg', function()
-      local ok,sn = pcall(require, 'snacks')
-      if ok and sn and sn.lazygit then pcall(sn.lazygit.open) else vim.cmd('vsplit | terminal lazygit') end
-    end, desc = 'Lazygit' },
-  { "<C-\\>", function() Snacks.terminal() end, desc = "Terminal" },
+  -- { '<leader>gg', function()
+  --     local ok,sn = pcall(require, 'snacks')
+  --     if ok and sn and sn.lazygit then pcall(sn.lazygit.open) else vim.cmd('vsplit | terminal lazygit') end
+  --   end, desc = 'Lazygit' },
   { '<leader>td', function()
       require('trouble').open('workspace_diagnostics')
     end, desc = 'Trouble: Workspace Diagnostics' },
@@ -265,4 +510,15 @@ wk.add({
   { '<leader>xx', ':w<cr>:source %<cr>', desc = '[x] source %' },
   { '<leader>a', group = '[A]i tools' },
   { '<leader>st', ':Store<cr>', desc = 'Open Store' },
+  { '<leader>t', group = '[t]erminal' },
+  { '<leader>tn', function() term_new({ position = 'bottom' }) end, desc = '[n]ew terminal (bottom)' },
+  { '<leader>tv', function() term_new({ position = 'right' }) end, desc = 'new terminal [v]ertical (right)' },
+  { '<leader>tf', function() term_new({ position = 'float' }) end, desc = 'new terminal [f]loat' },
+  { '<leader>ts', term_select, desc = '[s]elect terminal' },
+  { '<leader>tl', ':TermList<cr>', desc = '[l]ist terminals' },
+  { '<leader>t1', function() toggle_terminal(1) end, desc = 'toggle terminal [1]' },
+  { '<leader>t2', function() toggle_terminal(2) end, desc = 'toggle terminal [2]' },
+  { '<leader>t3', function() toggle_terminal(3) end, desc = 'toggle terminal [3]' },
+  { '<leader>wv', change_to_vsplit, desc = 'change to [v]ertical split' },
+  { '<leader>wh', change_to_hsplit, desc = 'change to [h]orizontal split' },
 }, { mode = 'n' })
