@@ -7,6 +7,108 @@ local function set_terminal_keymaps()
   vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
 end
 
+-- ============================================================================
+-- Terminal Mode Visual Indicator
+-- ============================================================================
+
+-- Define highlight groups for terminal modes
+vim.api.nvim_set_hl(0, 'TerminalNormalMode', { bg = '#2d1f1f' })  -- Reddish tint for normal mode
+vim.api.nvim_set_hl(0, 'TerminalInsertMode', { bg = 'NONE' })     -- Default for insert mode
+vim.api.nvim_set_hl(0, 'TerminalModeIndicator', { fg = '#ff6b6b', bg = '#2d1f1f', bold = true })
+
+-- Track the floating window for mode indicator
+local term_mode_indicator_win = nil
+local term_mode_indicator_buf = nil
+
+--- Show floating mode indicator in terminal window
+local function show_term_mode_indicator()
+  -- Close existing indicator if any
+  if term_mode_indicator_win and vim.api.nvim_win_is_valid(term_mode_indicator_win) then
+    vim.api.nvim_win_close(term_mode_indicator_win, true)
+  end
+
+  -- Create buffer for indicator - compact "N" badge
+  term_mode_indicator_buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(term_mode_indicator_buf, 0, -1, false, { 'N' })
+
+  -- Get current window dimensions
+  local win_width = vim.api.nvim_win_get_width(0)
+
+  -- Create small floating window in top-right corner (no border for compactness)
+  term_mode_indicator_win = vim.api.nvim_open_win(term_mode_indicator_buf, false, {
+    relative = 'win',
+    win = 0,
+    width = 1,
+    height = 1,
+    row = 0,
+    col = win_width - 2,
+    style = 'minimal',
+    border = 'none',
+    focusable = false,
+    zindex = 100,
+  })
+
+  -- Set highlight
+  vim.api.nvim_win_set_option(term_mode_indicator_win, 'winhl', 'Normal:TerminalModeIndicator')
+end
+
+--- Hide the mode indicator
+local function hide_term_mode_indicator()
+  if term_mode_indicator_win and vim.api.nvim_win_is_valid(term_mode_indicator_win) then
+    vim.api.nvim_win_close(term_mode_indicator_win, true)
+    term_mode_indicator_win = nil
+  end
+end
+
+--- Update terminal visual based on mode
+local function update_terminal_mode_visual()
+  local mode = vim.api.nvim_get_mode().mode
+  local buftype = vim.bo.buftype
+
+  if buftype ~= 'terminal' then
+    hide_term_mode_indicator()
+    return
+  end
+
+  if mode == 't' then
+    -- Terminal insert mode - hide indicator, normal background
+    hide_term_mode_indicator()
+    vim.wo.winhighlight = ''
+  else
+    -- Terminal normal mode - show indicator, tinted background
+    show_term_mode_indicator()
+    vim.wo.winhighlight = 'Normal:TerminalNormalMode'
+  end
+end
+
+-- Autocommands for terminal mode changes
+vim.api.nvim_create_autocmd('ModeChanged', {
+  pattern = '*',
+  callback = function()
+    -- Small delay to ensure mode has fully changed
+    vim.schedule(update_terminal_mode_visual)
+  end,
+  desc = 'Update terminal mode visual indicator',
+})
+
+vim.api.nvim_create_autocmd('BufEnter', {
+  pattern = 'term://*',
+  callback = function()
+    vim.schedule(update_terminal_mode_visual)
+  end,
+  desc = 'Update terminal mode visual on buffer enter',
+})
+
+vim.api.nvim_create_autocmd('BufLeave', {
+  pattern = 'term://*',
+  callback = function()
+    hide_term_mode_indicator()
+  end,
+  desc = 'Hide terminal mode indicator on buffer leave',
+})
+
+-- ============================================================================
+
 vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
   pattern = { '*' },
   command = 'checktime',
