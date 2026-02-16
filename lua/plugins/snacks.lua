@@ -22,6 +22,14 @@ return {
           position = "bottom",
         }
       },
+      -- Lazygit integration
+      lazygit = {
+        enabled = true,
+        configure = true,  -- auto-configure lazygit for Neovim
+        win = {
+          style = "lazygit",
+        },
+      },
       picker = { enabled = true },
       quickfile = { enabled = true },
       scope = { enabled = true },
@@ -31,7 +39,11 @@ return {
       styles = {
         notification = {
           -- wo = { wrap = true } -- Wrap notifications
-        }
+        },
+        lazygit = {
+          width = 0,   -- full width
+          height = 0,  -- full height
+        },
       },
     },
     keys = {
@@ -43,6 +55,10 @@ return {
       { "3<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "3" } }) end, desc = "Toggle Terminal 3", mode = { "n", "t" } },
       { "4<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "4" } }) end, desc = "Toggle Terminal 4", mode = { "n", "t" } },
       { "5<C-\\>", function() Snacks.terminal.toggle(nil, { cwd = vim.fn.getcwd(), env = { TERM_NUM = "5" } }) end, desc = "Toggle Terminal 5", mode = { "n", "t" } },
+      -- Lazygit
+      { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
+      { "<leader>gf", function() Snacks.lazygit.log_file() end, desc = "Lazygit file history" },
+      { "<leader>gl", function() Snacks.lazygit.log() end, desc = "Lazygit log (cwd)" },
     },
     init = function()
       vim.api.nvim_create_autocmd("User", {

@@ -453,10 +453,7 @@ wk.add({
   { '<leader>g', group = '[g]it' },
   { '<leader>gc', ':GitConflictRefresh<cr>', desc = '[c]onflict' },
   { '<leader>gs', ':Gitsigns<cr>', desc = 'git [s]igns' },
-  -- { '<leader>gg', function()
-  --     local ok,sn = pcall(require, 'snacks')
-  --     if ok and sn and sn.lazygit then pcall(sn.lazygit.open) else vim.cmd('vsplit | terminal lazygit') end
-  --   end, desc = 'Lazygit' },
+  -- lazygit keymaps are in snacks.lua: <leader>gg, <leader>gf, <leader>gl
   { '<leader>td', function()
       require('trouble').open('workspace_diagnostics')
     end, desc = 'Trouble: Workspace Diagnostics' },

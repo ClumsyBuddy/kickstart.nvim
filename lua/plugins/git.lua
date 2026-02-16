@@ -2,25 +2,20 @@ return {
   { 'sindrets/diffview.nvim', 
     cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggle', 'DiffviewFileHistory' }
   },
-  {
-    "NeogitOrg/neogit",
-    lazy = true,
-    dependencies = {
-      "nvim-lua/plenary.nvim",         -- required
-  
-      -- Only one of these is needed.
-      "sindrets/diffview.nvim",        -- optional
-      "esmuellert/codediff.nvim",      -- optional
-  
-      -- Only one of these is needed.
-      "nvim-telescope/telescope.nvim", -- optional
-      "ibhagwan/fzf-lua",              -- optional
-      "nvim-mini/mini.pick",           -- optional
-      "folke/snacks.nvim",             -- optional
-    },
-    cmd = "Neogit",
-    keys = {
-      { "<leader>gg", "<cmd>Neogit<cr>", desc = "Show Neogit UI" }
-    }
-  }
+
+  -- Neogit disabled - too slow on Windows (~3s to open)
+  -- {
+  --   "NeogitOrg/neogit",
+  --   lazy = true,
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --     "sindrets/diffview.nvim",
+  --     "nvim-telescope/telescope.nvim",
+  --     "folke/snacks.nvim",
+  --   },
+  --   cmd = "Neogit",
+  --   keys = {
+  --     { "<leader>gn", "<cmd>Neogit<cr>", desc = "Neogit UI" }
+  --   }
+  -- },
 }
