@@ -136,35 +136,88 @@ return {
   },
 
   { -- statusline
-    -- PERF: I found this to slow down the editor
     'nvim-lualine/lualine.nvim',
-    enabled = false,
+    event = 'VeryLazy',
     config = function()
       local function macro_recording()
         local reg = vim.fn.reg_recording()
-        if reg == '' then
-          return ''
-        end
+        if reg == '' then return '' end
         return '📷[' .. reg .. ']'
       end
 
-      ---@diagnostic disable-next-line: undefined-field
+      -- Short filename with parent dir (e.g., "plugins/ui.lua")
+      local function short_path()
+        local filename = vim.fn.expand('%:t')
+        if filename == '' then
+          -- Scratch buffer - show cwd
+          return '[' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t') .. ']'
+        end
+        local parent = vim.fn.expand('%:p:h:t')
+        if parent == '' or parent == filename then return filename end
+        return parent .. '/' .. filename
+      end
+
+      -- Truncated full path - shows full path, truncates if too long
+      local function truncated_path()
+        -- %:p = full path, %:~ = replace home with ~
+        local path = vim.fn.expand('%:p:~')
+        if path == '' then
+          -- Scratch buffer - show full cwd path
+          return vim.fn.fnamemodify(vim.fn.getcwd(), ':~')
+        end
+
+        local max_len = math.floor(vim.o.columns * 0.3)  -- 30% of screen width
+        if #path <= max_len then return path end
+
+        -- Truncate from the left, keeping the filename and some path context
+        local sep = vim.fn.has('win32') == 1 and '\\' or '/'
+        local parts = vim.split(path, '[/\\]')
+        if #parts <= 2 then
+          return '…' .. path:sub(-(max_len - 1))
+        end
+
+        -- Keep first part (~ or drive), ellipsis, and some trailing context
+        local first = parts[1]
+        local remaining = max_len - #first - 4  -- 4 for sep + "…" + sep
+
+        -- Build path from the end until we run out of space
+        local tail = ''
+        for i = #parts, 2, -1 do
+          local part = parts[i]
+          if #tail + #part + 1 > remaining then break end
+          tail = sep .. part .. tail
+        end
+
+        if tail ~= '' then
+          return first .. sep .. '…' .. tail
+        end
+        return '…' .. sep .. parts[#parts]
+      end
+
       require('lualine').setup {
         options = {
           section_separators = '',
-          component_separators = '',
+          component_separators = '│',
           globalstatus = true,
+          theme = 'auto',
         },
         sections = {
           lualine_a = { 'mode', macro_recording },
           lualine_b = { 'branch', 'diff', 'diagnostics' },
-          -- lualine_b = {},
-          lualine_c = { 'searchcount' },
+          lualine_c = { short_path, truncated_path, 'searchcount' },
           lualine_x = { 'filetype' },
           lualine_y = { 'progress' },
           lualine_z = { 'location' },
         },
-        extensions = { 'nvim-tree' },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = { 'filename' },
+          lualine_x = { 'location' },
+          lualine_y = {},
+          lualine_z = {},
+        },
+        extensions = { 'quickfix', 'lazy' },
       }
     end,
   },
