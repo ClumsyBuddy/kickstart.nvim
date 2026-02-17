@@ -20,7 +20,6 @@ return {
       local ui = require 'dapui'
       require('dapui').setup()
       require('dap-python').setup()
-      require('dap.ext.vscode').load_launchjs 'launch.json'
 
       require('nvim-dap-virtual-text').setup {
         -- Hides tokens, secrets, and other sensitive information
