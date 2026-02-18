@@ -28,6 +28,13 @@ return {
         configure = true,  -- auto-configure lazygit for Neovim
         win = {
           style = "lazygit",
+          position = "float",
+          border = "rounded",
+          width = 0.9,
+          height = 0.9,
+          keys = {
+            term_normal = false,
+          },
         },
       },
       picker = { enabled = true },
@@ -41,8 +48,11 @@ return {
           -- wo = { wrap = true } -- Wrap notifications
         },
         lazygit = {
-          width = 0,   -- full width
-          height = 0,  -- full height
+          width = 0.9,
+          height = 0.9,
+          keys = {
+            term_normal = false,
+          },
         },
       },
     },

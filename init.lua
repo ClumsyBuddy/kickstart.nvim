@@ -21,22 +21,28 @@ vim.api.nvim_create_autocmd('InsertLeave', { command = [[set relativenumber]] })
 vim.opt.mouse = 'a'
 vim.opt.showmode = false
 
-vim.schedule(function()
-  -- vim.opt.clipboard = 'unnamedplus'
-  vim.opt.clipboard = ''
-end)
 
-vim.g.clipboard = {
-  name = 'OSC 52',
-  copy = {
-    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-  },
-  paste = {
-    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-  },
-}
+if vim.loop.os_uname().sysname == "Windows_NT" then
+
+elseif vim.loop.os_uname().sysname == "Linux" then
+  vim.schedule(function()
+    -- vim.opt.clipboard = 'unnamedplus'
+    vim.opt.clipboard = ''
+  end)
+
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    },
+  }
+end
+
 
 
 vim.opt.breakindent = true
