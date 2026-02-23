@@ -1,6 +1,42 @@
 return {
-  { 'sindrets/diffview.nvim', 
-    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggle', 'DiffviewFileHistory' }
+  {
+    'sindrets/diffview.nvim',
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggle', 'DiffviewFileHistory' },
+    config = function()
+      local actions = require('diffview.actions')
+
+      require('diffview').setup({
+        enhanced_diff_hl = true,
+        view = {
+          default = {
+            layout = 'diff2_horizontal',
+          },
+          merge_tool = {
+            layout = 'diff3_horizontal',
+          },
+          file_history = {
+            layout = 'diff2_horizontal',
+          },
+        },
+        keymaps = {
+          disable_defaults = false,
+          file_panel = {
+            -- Disable s/S to avoid conflict with flash.nvim
+            { 'n', 's', false },
+            { 'n', 'S', false },
+            -- Use 'ga' for staging (mnemonic: git add)
+            { 'n', 'ga', actions.toggle_stage_entry, { desc = 'Stage / unstage the selected entry' } },
+            { 'n', 'gA', actions.stage_all, { desc = 'Stage all entries' } },
+            { 'n', 'gU', actions.unstage_all, { desc = 'Unstage all entries' } },
+          },
+          view = {
+            -- Disable s/S in view to avoid conflict with flash.nvim
+            { 'n', 's', false },
+            { 'n', 'S', false },
+          },
+        },
+      })
+    end,
   },
 
   -- Neogit disabled - too slow on Windows (~3s to open)
