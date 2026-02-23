@@ -139,3 +139,46 @@ vim.api.nvim_create_autocmd({ 'TermOpen' }, {
 --     vim.highlight.on_yank()
 --   end,
 -- })
+
+-- ============================================================================
+-- Prevent Terminal from Filling Screen
+-- ============================================================================
+
+-- Helper: Count non-terminal listed buffers
+local function count_real_buffers()
+  local count = 0
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf)
+      and vim.bo[buf].buflisted
+      and vim.bo[buf].buftype ~= 'terminal'
+    then
+      count = count + 1
+    end
+  end
+  return count
+end
+
+-- Handle :q (quit) - fires before window closes
+vim.api.nvim_create_autocmd('QuitPre', {
+  callback = function()
+    if vim.bo.buftype == 'terminal' then return end
+    if count_real_buffers() <= 1 then
+      vim.cmd('enew')
+    end
+  end,
+  desc = 'Prevent terminal from filling screen on :q',
+})
+
+-- Handle :bd (buffer delete)
+vim.api.nvim_create_autocmd('BufDelete', {
+  callback = function(args)
+    if vim.bo[args.buf].buftype == 'terminal' then return end
+    if count_real_buffers() <= 1 then
+      -- Schedule to run after the current command completes
+      vim.schedule(function()
+        vim.cmd('enew')
+      end)
+    end
+  end,
+  desc = 'Prevent terminal from filling screen on :bd',
+})
