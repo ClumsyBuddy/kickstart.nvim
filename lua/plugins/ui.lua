@@ -417,6 +417,27 @@ return {
     end,
   },
 
+  { -- render markdown with icons and formatting
+    "MeanderingProgrammer/render-markdown.nvim",
+    opts = {
+      anti_conceal = { enabled = false },
+      file_types = { 'markdown', 'opencode_output' },
+      heading = {
+        -- Disable heading icons to avoid overlapping symbols
+        enabled = false,
+      },
+      bullet = {
+        -- Disable bullet rendering to avoid double-bullet issue
+        enabled = false,
+      },
+      render_modes = { 'n', 'c' },
+      win_options = {
+        conceallevel = { rendered = 2 },
+      },
+    },
+    ft = { 'markdown', 'Avante', 'copilot-chat', 'opencode_output' },
+  },
+
   { -- show images in nvim!
     '3rd/image.nvim',
     enabled = false,
