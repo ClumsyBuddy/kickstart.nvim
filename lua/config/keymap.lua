@@ -453,6 +453,8 @@ wk.add({
   { '<leader>g', group = '[g]it' },
   { '<leader>gc', ':GitConflictRefresh<cr>', desc = '[c]onflict' },
   { '<leader>gs', ':Gitsigns<cr>', desc = 'git [s]igns' },
+  { '<leader>gm', function() require('misc.ollama-commit').commit() end, desc = 'AI commit [m]essage' },
+  { '<leader>gM', function() require('misc.ollama-commit').select_model() end, desc = 'Set Ollama [M]odel' },
   -- lazygit keymaps are in snacks.lua: <leader>gg, <leader>gf, <leader>gl
   { '<leader>td', function()
       require('trouble').open('workspace_diagnostics')
